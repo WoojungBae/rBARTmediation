@@ -1,0 +1,17 @@
+Package: rBARTmediation
+Type: Package
+Title: Mediation analysis using correlated BART models with random effects
+Version: 4.3.2
+Date: 2024-01-01
+Authors@R: c(person('Woojung', 'Bae', role=c('aut', 'cre'), email='matt.woojung@gmail.com'),
+  person('Michael', 'Daniels', role='aut'))
+Author: Woojung Bae [aut, cre],
+  Michael Daniels [aut]
+Maintainer: Woojung Bae <matt.woojung@gmail.com>
+Description: Mediation analysis using correlated BART models with random effects.
+License: GPL (>= 2)
+Depends: R (>= 2.10), nlme, nnet
+Imports: Rcpp (>= 0.12.3), parallel, tools
+LinkingTo: Rcpp
+Suggests: MASS
+NeedsCompilation: yes

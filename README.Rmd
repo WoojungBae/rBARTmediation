@@ -1,0 +1,40 @@
+---
+title: rBARTmediation: Mediation analysis using correlated BART models with random effects.
+output: github_document
+---
+
+[![CRAN_Status_Badge][r-pkg-badge]][cran-url]
+[![Total_Downloads][cranlog-total]][cran-url]
+[![Downloads from the RStudio CRAN mirror][cranlog-badge]][cran-url]
+[![Build Status][gha-icon]][gha-url]
+<!-- [![arXiv][arXiv-badge]](https://doi.org/10.6339/21-JDS1020) -->
+
+The R package **rBARTmediation** is intended to be a user-friendly mediation analysis using Mediation analysis using correlated BART models with random effects.
+
+Many of source codes are forked from an R package BART (https://cran.r-project.org/web/packages/BART/index.html). 
+
+## Development
+
+The latest version of the package is under development at
+[GitHub](https://github.com/WoojungBae/rBARTmediation). If it is able to pass
+the automated package checks, one may install it by
+
+``` r
+if (!require(devtools)) install.packages("devtools")
+devtools::install_github("WoojungBae/rBARTmediation")
+```
+
+## License
+
+[GNU General Public License][gpl] (≥ 3)
+
+[r-pkg-badge]: https://www.r-pkg.org/badges/version/rBARTmediation
+[cranlog-badge]: https://cranlogs.r-pkg.org/badges/rBARTmediation
+[cranlog-total]: https://cranlogs.r-pkg.org/badges/grand-total/rBARTmediation
+[cran-url]: https://CRAN.R-project.org/package=rBARTmediation
+[gha-icon]: https://github.com/WoojungBae/rBARTmediation/workflows/R-CMD-check/badge.svg
+[gha-url]: https://github.com/WoojungBae/rBARTmediation/actions
+[github-url]: https://github.com/WoojungBae/rBARTmediation
+[example-pkg]: https://github.com/WoojungBae/example-pkg-Rcpp-rBARTmediation
+<!-- [arXiv-badge]: https://img.shields.io/badge/arXiv-<10.48550/arXiv.2305.11445>-<COLOR>.svg -->
+[gpl]: https://www.gnu.org/licenses/
