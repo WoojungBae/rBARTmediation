@@ -279,7 +279,7 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
     xinfo& xi = bm.getxinfo();
     
     for(size_t postrep=0;postrep<total;postrep++) {
-      if(postrep%printevery==0) printf("done %zu (out of %lu)\n",postrep,numdraw+burn);
+      if(postrep%printevery==0) printf("done %zu (out of %zu)\n",postrep,numdraw+burn);
       if(postrep==(burn/2)&&dart) bm.startdart();
       //--------------------------------------------------
       // draw bart

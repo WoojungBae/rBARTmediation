@@ -741,7 +741,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       if(postrep>=burn) {
         if(postrep%printevery==0) {
-          printf("done %zu (out of %lu)\n",postrep,numdraw+burn);
+          printf("done %zu (out of %zu)\n",postrep,numdraw+burn);
         }
         if(nkeeptrain && (((postrep-burn+1) % skiptr) == 0)) {
           for(size_t i=0;i<n;i++) {
