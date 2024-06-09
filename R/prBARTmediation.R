@@ -100,12 +100,12 @@ prBARTmediation = function(object,  # object from rBARTmediation
       }
     }
     if(object$typeY == "continuous"){
-      Yz0m0.test[d,] = Yz0m0res
-      Yz1m0.test[d,] = Yz1m0res
-      Yz1m1.test[d,] = Yz1m1res
-      # Yz0m0.test[d,] = rnorm(N, Yz0m0res, object$iYsigest[d])
-      # Yz1m0.test[d,] = rnorm(N, Yz1m0res, object$iYsigest[d])
-      # Yz1m1.test[d,] = rnorm(N, Yz1m1res, object$iYsigest[d])
+      # Yz0m0.test[d,] = Yz0m0res
+      # Yz1m0.test[d,] = Yz1m0res
+      # Yz1m1.test[d,] = Yz1m1res
+      Yz0m0.test[d,] = rnorm(N, Yz0m0res, object$iYsigest[d])
+      Yz1m0.test[d,] = rnorm(N, Yz1m0res, object$iYsigest[d])
+      Yz1m1.test[d,] = rnorm(N, Yz1m1res, object$iYsigest[d])
     } else if(object$typeY == "binary"){
       # Yz0m0res = pnorm(Yz0m0res)
       # Yz1m0res = pnorm(Yz1m0res)
