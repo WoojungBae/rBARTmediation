@@ -344,9 +344,8 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
       if(postrep>=burn) {
         if(nkeeptrain && (((postrep-burn+1) % skiptr) ==0)) {
           for(size_t i=0;i<n;i++) {
-            // YDRAW(trcnt,i)=bm.f(i);
-            // YDRAW(trcnt,i)=Offset+bm.f(i);
-            YDRAW(trcnt,i)=Offset+bm.f(i)+u[u_index[i]];
+            YDRAW(trcnt,i)=Offset+bm.f(i);
+            // YDRAW(trcnt,i)=Offset+bm.f(i)+u[u_index[i]];
           }
           for(size_t j=0;j<J;j++) {
             UDRAW(trcnt,j)=u[j];

@@ -745,14 +745,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         }
         if(nkeeptrain && (((postrep-burn+1) % skiptr) == 0)) {
           for(size_t i=0;i<n;i++) {
-            // MDRAW(trcnt,i) = mBM.f(i);
-            // YDRAW(trcnt,i) = yBM.f(i);
-            // MDRAW(trcnt,i) = MOffset + mBM.f(i);
-            // YDRAW(trcnt,i) = YOffset + yBM.f(i);
-            // MDRAW(trcnt,i) = mBM.f(i) + uM[u_index[i]];
-            // YDRAW(trcnt,i) = yBM.f(i) + uY[u_index[i]];
-            MDRAW(trcnt,i) = MOffset + mBM.f(i) + uM[u_index[i]];
-            YDRAW(trcnt,i) = YOffset + yBM.f(i) + uY[u_index[i]];
+            MDRAW(trcnt,i) = MOffset + mBM.f(i);
+            YDRAW(trcnt,i) = YOffset + yBM.f(i);
+            // MDRAW(trcnt,i) = MOffset + mBM.f(i) + uM[u_index[i]];
+            // YDRAW(trcnt,i) = YOffset + yBM.f(i) + uY[u_index[i]];
           }
           Msdraw[trcnt]=iMsigest;
           Ysdraw[trcnt]=iYsigest;
