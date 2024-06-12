@@ -527,8 +527,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           //   jj++;
           // }
           RHOtmp = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uM_j *= precM*pow(sd_uM_j, 2.);
-          mu_uY_j *= precY*pow(sd_uY_j, 2.);
+          // mu_uM_j *= precM*pow(sd_uM_j, 2.);
+          // mu_uY_j *= precY*pow(sd_uY_j, 2.);
           uMtmp=gen.normal()*sd_uM_j+mu_uM_j;
           uYtmp=gen.normal()*sd_uY_j*sqrt(1-pow(RHOtmp,2))+
             (mu_uY_j + (RHOtmp*(sd_uY_j/sd_uM_j))*(uMtmp-mu_uM_j));
@@ -587,7 +587,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           // }
           RHOtmp = gen.uniform(); // gen.uniform() * 2 - 1;
           // mu_uM_j *= precM*pow(sd_uM_j, 2.);
-          mu_uY_j *= precY*pow(sd_uY_j, 2.);
+          // mu_uY_j *= precY*pow(sd_uY_j, 2.);
           uMtmp=gen.normal()*sd_uM_j+mu_uM_j;
           uYtmp=gen.normal()*sd_uY_j*sqrt(1-pow(RHOtmp,2))+
             (mu_uY_j + (RHOtmp*(sd_uY_j/sd_uM_j))*(uMtmp-mu_uM_j));
@@ -646,7 +646,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           //   jj++;
           // }
           RHOtmp = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uM_j *= precM*pow(sd_uM_j, 2.);
+          // mu_uM_j *= precM*pow(sd_uM_j, 2.);
           // mu_uY_j *= precY*pow(sd_uY_j, 2.);
           uMtmp=gen.normal()*sd_uM_j+mu_uM_j;
           uYtmp=gen.normal()*sd_uY_j*sqrt(1-pow(RHOtmp,2))+
