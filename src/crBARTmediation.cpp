@@ -629,7 +629,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // lik_curr
           for(size_t j=0; j<n_j; j++) {
-            YMlik_curr += R::dnorm(uM[j], 0., sd_uM_j, 1) + 
+            YMlik_curr += 
+              R::dnorm(uM[j], 0., sd_uM_j, 1) + 
               R::dnorm(uY[j], 0., sd_uY_j*sqrt(1-pow(RHO[j],2)), 1) + 
               R::dnorm(iM[jj_curr], MOffset+mBM.f(jj_curr)+uM[j], iMsigest, 1) +
               R::pnorm(YOffset+yBM.f(jj_curr)+uY[j], 0., 1., iY[jj_curr], 1);
@@ -653,7 +654,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // lik_prop
           for(size_t j=0; j<n_j; j++) {
-            YMlik_curr += R::dnorm(uMtmp, 0., sd_uM_j, 1) + 
+            YMlik_curr += 
+              R::dnorm(uMtmp, 0., sd_uM_j, 1) + 
               R::dnorm(uYtmp, 0., sd_uY_j*sqrt(1-pow(RHOtmp,2)), 1) + 
               R::dnorm(iM[jj_prop], MOffset+mBM.f(jj_prop)+uMtmp, iMsigest, 1) + 
               R::pnorm(YOffset+yBM.f(jj_prop)+uYtmp, 0., 1., iY[jj_prop], 1);
@@ -688,7 +690,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // lik_curr
           for(size_t j=0; j<n_j; j++) {
-            YMlik_curr += R::dnorm(uM[j], 0., sd_uM_j, 1) + 
+            YMlik_curr += 
+              R::dnorm(uM[j], 0., sd_uM_j, 1) + 
               R::dnorm(uY[j], 0., sd_uY_j*sqrt(1-pow(RHO[j],2)), 1) + 
               R::pnorm(MOffset+mBM.f(jj_curr)+uM[j], 0., 1., iM[jj_curr], 1) +
               R::pnorm(YOffset+yBM.f(jj_curr)+uY[j], 0., 1., iY[jj_curr], 1);
@@ -712,7 +715,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // lik_prop
           for(size_t j=0; j<n_j; j++) {
-            YMlik_curr += R::dnorm(uMtmp, 0., sd_uM_j, 1) + 
+            YMlik_curr += 
+              R::dnorm(uMtmp, 0., sd_uM_j, 1) + 
               R::dnorm(uYtmp, 0., sd_uY_j*sqrt(1-pow(RHOtmp,2)), 1) + 
               R::pnorm(MOffset+mBM.f(jj_prop)+uMtmp, 0., 1., iM[jj_prop], 1) + 
               R::pnorm(YOffset+yBM.f(jj_prop)+uYtmp, 0., 1., iY[jj_prop], 1);

@@ -47,14 +47,14 @@ prBARTmediation = function(object,  # object from rBARTmediation
   M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
   Mreff = object$uMdraw # object$sd.uM * object$uMdraw
-  # for (j in 1:J) {
-  #   whichUindex = which(Uindex==j)
-  #   if(length(whichUindex)>0){
-  #     Mreff_tmp = c(Mreff[,j])
-  #     M0res[,whichUindex] = M0res[,whichUindex] + Mreff_tmp
-  #     M1res[,whichUindex] = M1res[,whichUindex] + Mreff_tmp
-  #   }
-  # }
+  for (j in 1:J) {
+    whichUindex = which(Uindex==j)
+    if(length(whichUindex)>0){
+      Mreff_tmp = c(Mreff[,j])
+      M0res[,whichUindex] = M0res[,whichUindex] + Mreff_tmp
+      M1res[,whichUindex] = M1res[,whichUindex] + Mreff_tmp
+    }
+  }
   if(object$typeM == "continuous"){
     M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], object$iMsigest))
     M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], object$iMsigest))
@@ -90,15 +90,15 @@ prBARTmediation = function(object,  # object from rBARTmediation
     Yz0m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z0.test, mc.cores)$yhat.test) + object$Yoffset
     Yz1m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z1.test, mc.cores)$yhat.test) + object$Yoffset
     Yz1m1res = c(.Call("cprBART", tmp$matMtreedraws, matM1z1.test, mc.cores)$yhat.test) + object$Yoffset
-    # for (j in 1:J) {
-    #   whichUindex = which(Uindex==j)
-    #   if(length(whichUindex)>0){
-    #     Yreff_tmp = c(Yreff[d,j])
-    #     Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + Yreff_tmp
-    #     Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + Yreff_tmp
-    #     Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + Yreff_tmp
-    #   }
-    # }
+    for (j in 1:J) {
+      whichUindex = which(Uindex==j)
+      if(length(whichUindex)>0){
+        Yreff_tmp = c(Yreff[d,j])
+        Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + Yreff_tmp
+        Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + Yreff_tmp
+        Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + Yreff_tmp
+      }
+    }
     if(object$typeY == "continuous"){
       # Yz0m0.test[d,] = Yz0m0res
       # Yz1m0.test[d,] = Yz1m0res
