@@ -495,9 +495,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       // if (ratio < randu(1)[0]){ beta_prop = beta_curr; }
       double YMlik_curr, YMlik_prop;
       double uYtmp, uMtmp, RHOtmp;
+      
+      jj=0;
       if (typeM==1 && typeY==1) {
-        jj=0;
-        
         for(size_t j=0; j<J; j++) {
           n_j=n_j_vec[j];
           YMlik_curr=0.;
@@ -514,8 +514,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uY[j], mu_uY_j, sd_uY_j, 1) + 
-              R::dnorm(iM[jj_curr], MOffset+mBM.f(jj_curr)+uM[j], iMsigest, 1) +
-              R::dnorm(iY[jj_curr], YOffset+yBM.f(jj_curr)+uY[j], iYsigest, 1);
+              R::dnorm(iM[jj_curr], MOffset + mBM.f(jj_curr) + uM[j], iMsigest, 1) +
+              R::dnorm(iY[jj_curr], YOffset + yBM.f(jj_curr) + uY[j], iYsigest, 1);
             jj_curr++;
           }
           
@@ -531,9 +531,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uMtmp, mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uYtmp, mu_uY_j, sd_uY_j, 1) + 
-              R::dnorm(iM[jj_prop], MOffset+mBM.f(jj_prop)+uMtmp, iMsigest, 1) +
-              R::dnorm(iY[jj_prop], YOffset+yBM.f(jj_prop)+uYtmp, iYsigest, 1);
+              R::dnorm(iM[jj_prop], MOffset + mBM.f(jj_prop) + uMtmp, iMsigest, 1) +
+              R::dnorm(iY[jj_prop], YOffset + yBM.f(jj_prop) + uYtmp, iYsigest, 1);
             jj_prop++;
+            jj++;
           }
           
           // acceptance ratio
@@ -549,8 +550,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
         }
       } else if (typeM==2 && typeY==1) {
-        jj=0;
-        
         for(size_t j=0; j<J; j++) {
           n_j=n_j_vec[j];
           YMlik_curr=0.;
@@ -567,8 +566,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uY[j], mu_uY_j, sd_uY_j, 1) + 
-              R::pnorm(MOffset+mBM.f(jj_curr)+uM[j], 0., 1., iM[jj_curr], 1) +
-              R::dnorm(iY[jj_curr], YOffset+yBM.f(jj_curr)+uY[j], iYsigest, 1);
+              R::pnorm(MOffset + mBM.f(jj_curr) + uM[j], 0., 1., iM[jj_curr], 1) +
+              R::dnorm(iY[jj_curr], YOffset + yBM.f(jj_curr) + uY[j], iYsigest, 1);
             jj_curr++;
           }
           
@@ -584,9 +583,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uMtmp, mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uYtmp, mu_uY_j, sd_uY_j, 1) + 
-              R::pnorm(MOffset+mBM.f(jj_prop)+uMtmp, 0., 1., iM[jj_prop], 1) + 
-              R::dnorm(iY[jj_prop], YOffset+yBM.f(jj_prop)+uYtmp, iYsigest, 1);
+              R::pnorm(MOffset + mBM.f(jj_prop) + uMtmp, 0., 1., iM[jj_prop], 1) + 
+              R::dnorm(iY[jj_prop], YOffset + yBM.f(jj_prop) + uYtmp, iYsigest, 1);
             jj_prop++;
+            jj++;
           }
           
           // acceptance ratio
@@ -602,8 +602,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
         }
       } else if (typeM==1 && typeY==2) {
-        jj=0;
-        
         for(size_t j=0; j<J; j++) {
           n_j=n_j_vec[j];
           YMlik_curr=0.;
@@ -620,8 +618,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uY[j], mu_uY_j, sd_uY_j, 1) + 
-              R::dnorm(iM[jj_curr], MOffset+mBM.f(jj_curr)+uM[j], iMsigest, 1) +
-              R::pnorm(YOffset+yBM.f(jj_curr)+uY[j], 0., 1., iY[jj_curr], 1);
+              R::dnorm(iM[jj_curr], MOffset + mBM.f(jj_curr) + uM[j], iMsigest, 1) +
+              R::pnorm(YOffset + yBM.f(jj_curr) + uY[j], 0., 1., iY[jj_curr], 1);
             jj_curr++;
           }
           
@@ -637,9 +635,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uMtmp, mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uYtmp, mu_uY_j, sd_uY_j, 1) + 
-              R::dnorm(iM[jj_prop], MOffset+mBM.f(jj_prop)+uMtmp, iMsigest, 1) +
-              R::pnorm(YOffset+yBM.f(jj_prop)+uYtmp, 0., 1., iY[jj_prop], 1);
+              R::dnorm(iM[jj_prop], MOffset + mBM.f(jj_prop) + uMtmp, iMsigest, 1) +
+              R::pnorm(YOffset + yBM.f(jj_prop) + uYtmp, 0., 1., iY[jj_prop], 1);
             jj_prop++;
+            jj++;
           }
           
           // acceptance ratio
@@ -655,8 +654,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
         }
       } else if (typeM==2 && typeY==2) {
-        jj=0;
-        
         for(size_t j=0; j<J; j++) {
           n_j=n_j_vec[j];
           YMlik_curr=0.;
@@ -673,8 +670,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uY[j], mu_uY_j, sd_uY_j, 1) + 
-              R::pnorm(MOffset+mBM.f(jj_curr)+uM[j], 0., 1., iM[jj_curr], 1) +
-              R::pnorm(YOffset+yBM.f(jj_curr)+uY[j], 0., 1., iY[jj_curr], 1);
+              R::pnorm(MOffset + mBM.f(jj_curr) + uM[j], 0., 1., iM[jj_curr], 1) +
+              R::pnorm(YOffset + yBM.f(jj_curr) + uY[j], 0., 1., iY[jj_curr], 1);
             jj_curr++;
           }
           
@@ -690,9 +687,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             YMlik_curr += 
               R::dnorm(uMtmp, mu_uM_j, sd_uM_j, 1) + 
               R::dnorm(uYtmp, mu_uY_j, sd_uY_j, 1) + 
-              R::pnorm(MOffset+mBM.f(jj_prop)+uMtmp, 0., 1., iM[jj_prop], 1) + 
-              R::pnorm(YOffset+yBM.f(jj_prop)+uYtmp, 0., 1., iY[jj_prop], 1);
+              R::pnorm(MOffset + mBM.f(jj_prop) + uMtmp, 0., 1., iM[jj_prop], 1) + 
+              R::pnorm(YOffset + yBM.f(jj_prop) + uYtmp, 0., 1., iY[jj_prop], 1);
             jj_prop++;
+            jj++;
           }
           
           // acceptance ratio
@@ -730,12 +728,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           Ysdraw[trcnt]=iYsigest;
           
           for(size_t j=0;j<J;j++) {
-            UMDRAW(trcnt,j)=uM[j];
-            UYDRAW(trcnt,j)=uY[j];
-            RHODRAW(trcnt,j)=RHO[j];
+            UMDRAW(trcnt,j) = uM[j];
+            UYDRAW(trcnt,j) = uY[j];
+            RHODRAW(trcnt,j) = RHO[j];
           }
-          Msdudraw[trcnt]=pow(tau_uM, -0.5);
-          Ysdudraw[trcnt]=pow(tau_uY, -0.5);
+          Msdudraw[trcnt] = pow(tau_uM, -0.5);
+          Ysdudraw[trcnt] = pow(tau_uY, -0.5);
           
           trcnt+=1;
           
