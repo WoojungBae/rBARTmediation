@@ -375,6 +375,20 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
     
+    // init
+    for(size_t i=0;i<n;i++) {
+      if(typeM==1){
+        Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
+      } else if(typeM==2){
+        Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
+      }
+      if(typeY==1){
+        Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
+      } else if(typeY==2){
+        Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
+      }
+    }
+    
     // dart iterations
     std::vector<double> imatXvarprb (pm,0.);
     std::vector<size_t> imatXvarcnt (pm,0);
@@ -408,12 +422,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         if(typeM==1){
           Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), iMsigest, gen);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
         }
         if(typeY==1){
           Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), iYsigest, gen);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
         }
       }
       
@@ -448,8 +462,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       // draw uM, uY
       size_t n_j, jj, jj_curr, jj_prop;
-      double mu_uM_j, sd_uM_j, precM=pow(iMsigest, -2.);
-      double mu_uY_j, sd_uY_j, precY=pow(iYsigest, -2.);
+      double mu_uM_j, sd_uM_j; // , precM=pow(iMsigest, -2.);
+      double mu_uY_j, sd_uY_j; // , precY=pow(iYsigest, -2.);
       
       double YMlik_curr, YMlik_prop;
       double uYprop, uMprop, RHOtmp;
