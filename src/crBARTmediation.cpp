@@ -467,7 +467,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sd_uM_j = 1.;
           mu_uM_j = 0.;
           sd_uY_j = 1. * sqrt(1 - pow(RHO[j], 2));
-          mu_uY_j = 0. + RHO[j] * (uMprop - mu_uM_j);
+          mu_uY_j = 0. + RHO[j] * (uM[j] - mu_uM_j);
           for(size_t jj=0; jj<n_j; jj++) {
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
@@ -519,7 +519,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sd_uM_j = 1.;
           mu_uM_j = 0.;
           sd_uY_j = 1. * sqrt(1 - pow(RHO[j], 2));
-          mu_uY_j = 0. + RHO[j] * (uMprop - mu_uM_j);
+          mu_uY_j = 0. + RHO[j] * (uM[j] - mu_uM_j);
           for(size_t jj=0; jj<n_j; jj++) {
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
@@ -571,7 +571,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sd_uM_j = 1.;
           mu_uM_j = 0.;
           sd_uY_j = 1. * sqrt(1 - pow(RHO[j], 2));
-          mu_uY_j = 0. + RHO[j] * (uMprop - mu_uM_j);
+          mu_uY_j = 0. + RHO[j] * (uM[j] - mu_uM_j);
           for(size_t jj=0; jj<n_j; jj++) {
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
@@ -623,7 +623,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sd_uM_j = 1.;
           mu_uM_j = 0.;
           sd_uY_j = 1. * sqrt(1 - pow(RHO[j], 2));
-          mu_uY_j = 0. + RHO[j] * (uMprop - mu_uM_j);
+          mu_uY_j = 0. + RHO[j] * (uM[j] - mu_uM_j);
           for(size_t jj=0; jj<n_j; jj++) {
             YMlik_curr += 
               R::dnorm(uM[j], mu_uM_j, sd_uM_j, 1) + 
