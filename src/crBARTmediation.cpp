@@ -474,7 +474,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           RHOprop = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uY_j = 0. + (sd_uY_j / sd_uM_j) * RHOprop * (uMprop - mu_uM_j);
+          mu_uY_j += (sd_uY_j / sd_uM_j) * RHOprop * (uMprop - mu_uM_j);
           sd_uY_j *= sqrt(1 - pow(RHOprop, 2));
           uYprop = gen.normal() * sd_uY_j + mu_uY_j;
           
@@ -500,9 +500,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // YMlik_prop
           ii_j = ii;
-          sd_uM_j = sqrt(B_uM * gen.uniform() + sum_uM2/(J-1.));
+          sd_uM_j = sqrt(B_uM * gen.uniform());
           RHOprop = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uM_j = 0. + (sd_uM_j / sd_uY_j) * RHOprop * (uY[j] - mu_uY_j);
+          mu_uM_j = uM[j] + (sd_uM_j / sd_uY_j) * RHOprop * (uY[j] - mu_uY_j);
           sd_uM_j *= sqrt(1 - pow(RHOprop, 2));
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           
@@ -542,9 +542,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           // YMlik_prop
           ii_j = ii;
-          sd_uY_j = sqrt(B_uY * gen.uniform() + sum_uY2/(J-1.));
+          sd_uY_j = sqrt(B_uY * gen.uniform());
           RHOprop = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uY_j = 0. + (sd_uY_j / sd_uM_j) * RHOprop * (uM[j] - mu_uM_j);
+          mu_uY_j = uY[j] + (sd_uY_j / sd_uM_j) * RHOprop * (uM[j] - mu_uM_j);
           sd_uY_j *= sqrt(1 - pow(RHOprop, 2));
           uYprop = gen.normal() * sd_uY_j + mu_uY_j;
           
@@ -574,12 +574,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           n_j = n_j_vec[j];
           
           // YMlik_prop
-          sd_uM_j = sqrt(B_uM * gen.uniform() + sum_uM2/(J-1.));
-          sd_uY_j = sqrt(B_uY * gen.uniform() + sum_uY2/(J-1.));
-          mu_uM_j = 0.;
+          sd_uM_j = sqrt(B_uM * gen.uniform());
+          sd_uY_j = sqrt(B_uY * gen.uniform());
+          mu_uM_j = uM[j];
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           RHOprop = gen.uniform(); // gen.uniform() * 2 - 1;
-          mu_uY_j = 0. + (sd_uY_j / sd_uM_j) * RHOprop * (uMprop - mu_uM_j);
+          mu_uY_j = uY[j] + (sd_uY_j / sd_uM_j) * RHOprop * (uMprop - mu_uM_j);
           sd_uY_j *= sqrt(1 - pow(RHOprop, 2));
           uYprop = gen.normal() * sd_uY_j + mu_uY_j;
           YMlik_prop =
