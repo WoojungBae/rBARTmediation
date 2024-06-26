@@ -76,17 +76,22 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     stop("the random effects indices must be provided")
   }
   
-  u.index=unique(Uindex)
-  u0.index=integer(n) ## changing from R/arbitrary indexing to C/0
+  # --------------------------------------------------
+  tmp.order <- order(Uindex)
+  matX <- matX[tmp.order,]
+  matM <- matM[tmp.order,]
+  M <- M[tmp.order]
+  Y <- Y[tmp.order]
+  Uindex <- Uindex[tmp.order]
+  
+  u.index <- unique(Uindex)
+  u0.index <- integer(n) ## changing from R/arbitrary indexing to C/0
   for(i in 1:n) {
-    u0.index[i]=which(Uindex[i]==u.index)-1
+    u0.index[i] <- which(Uindex[i]==u.index)-1
   }
-  u.index=unique(u0.index)
-  J=length(u.index)
-  n.j.vec=integer(J) ## n_j for each j
-  for(j in 1:J) {
-    n.j.vec[j]=length(which(u.index[j]==u0.index))
-  }
+  u.index <- unique(u0.index)
+  J <- length(u.index)
+  n.j.vec <- as.numeric(table(u0.index))
   
   # --------------------------------------------------
   tmp.order <- order(u0.index)
@@ -99,18 +104,18 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
   # --------------------------------------------------
   if(!transposed) {
     matXtemp <- bartModelMatrix(matX, matXnumcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=matXrm.const)
+                                xinfo=xinfo, rm.const=matXrm.const)
     matX <- t(matXtemp$X)
-    matXnumcut <- matXtemp$numcut
     matXinfo <- matXtemp$xinfo
+    matXnumcut <- matXtemp$numcut
     matXrm.const <- matXtemp$rm.const
     rm(matXtemp)
     
     matMtemp <- bartModelMatrix(matM, matMnumcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=matMrm.const)
+                                xinfo=xinfo, rm.const=matMrm.const)
     matM <- t(matMtemp$X)
-    matMnumcut <- matMtemp$numcut
     matMinfo <- matMtemp$xinfo
+    matMnumcut <- matMtemp$numcut
     matMrm.const <- matMtemp$rm.const
     rm(matMtemp)
   } else {
@@ -138,34 +143,34 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     if(is.na(Mlambda)) {
       if(is.na(Msigest)) {
         if(pm < n) {
-          lmeMtemp <- lme(M~., random=~1|factor(Uindex), data.frame(t(matX[-1,]),Uindex,M))
+          lmeMtemp <- lme(M~., random=~1|factor(u0.index), data.frame(t(matX[-1,]),u0.index,M))
           Msigest <- summary(lmeMtemp)$sigma
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- 5 * sd(uM)
+            B_uM <- 2 * sd(uM)
           }
         } else {
-          Msigest <- 5 * sd(M)
+          Msigest <- 2 * sd(M)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
       Mlambda <- (Msigest*Msigest*qchi)/nu # Mlambda parameter for sigma prior
     } else {
-      Msigest=sqrt(Mlambda)
+      Msigest <- (Mlambda)
     }
     
     if(is.na(Mtau.num)) {
-      Mtau=(max(M)-min(M))/(2*k*sqrt(ntree))
+      Mtau <- (max(M)-min(M))/(2*k*sqrt(ntree))
     } else {
       Mtau <- Mtau.num/(k*sqrt(ntree))
     }
   } else {
-    uM=double(J);uM[1]=NaN
+    uM <- double(J); uM[1] <- NaN
     
     Mlambda <- 1
     Msigest <- 1
     if(length(B_uM)==0) {
-      B_uM <- 5 * sd(M)
+      B_uM <- 2 * sd(M)
     }
     
     Mtau.num <- 3
@@ -176,34 +181,34 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     if(is.na(Ylambda)) {
       if(is.na(Ysigest)) {
         if(py < n) {
-          lmeYtemp <- lme(Y~., random=~1|factor(Uindex), data.frame(t(matM[-2,]),Uindex,Y))
+          lmeYtemp <- lme(Y~., random=~1|factor(u0.index), data.frame(t(matM[-2,]),u0.index,Y))
           Ysigest <- summary(lmeYtemp)$sigma
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- 5 * sd(uY)
+            B_uY <- 2 * sd(uY)
           }
         } else {
-          Ysigest <- 5 * sd(Y)
+          Ysigest <- 2 * sd(Y)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
       Ylambda <- (Ysigest*Ysigest*qchi)/nu # Ylambda parameter for sigma prior
     } else {
-      Ysigest=sqrt(Ylambda)
+      Ysigest <- (Ylambda)
     }
     
     if(is.na(Ytau.num)) {
-      Ytau=(max(Y)-min(Y))/(2*k*sqrt(ntree))
+      Ytau <- (max(Y)-min(Y))/(2*k*sqrt(ntree))
     } else {
       Ytau <- Ytau.num/(k*sqrt(ntree))
     }
   } else {
-    uY=double(J);uY[1]=NaN
+    uY <- double(J); uY[1] <- NaN
     
     Ylambda <- 1
     Ysigest <- 1
     if(length(B_uY)==0) {
-      B_uY <- 5 * sd(Y)
+      B_uY <- 2 * sd(Y)
     }
     
     Ytau.num <- 3
@@ -213,50 +218,50 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
   # --------------------------------------------------
   ptm <- proc.time()
   res <- .Call("crBARTmediation",
-              ntypeM,   # 1:continuous, 2:binary, 3:multinomial
-              ntypeY,   # 1:continuous, 2:binary, 3:multinomial
-              n,        # number of observations in training data
-              pm,       # dimension of matX
-              matX,     # pm x n training data matX
-              M,        # 1 x n training data M
-              py,       # dimension of matM
-              matM,     # py x n training data matM
-              Y,        # 1 x n training data Y
-              u0.index,
-              n.j.vec,
-              uM,       # random effects for M, if estimated
-              uY,       # random effects for Y, if estimated
-              J,
-              B_uM,
-              B_uY,
-              ntree,
-              matXnumcut,
-              matMnumcut,
-              ndpost*keepevery,
-              nskip,
-              keepevery,
-              power,
-              base,
-              Moffset,
-              Yoffset,
-              Mtau,
-              Ytau,
-              nu,
-              Mlambda,
-              Ylambda,
-              Msigest,
-              Ysigest,
-              sparse,
-              theta,
-              omega,
-              a,
-              b,
-              matXrho,
-              matMrho,
-              augment,
-              printevery,
-              matXinfo,
-              matMinfo)
+               ntypeM,   # 1:continuous, 2:binary, 3:multinomial
+               ntypeY,   # 1:continuous, 2:binary, 3:multinomial
+               n,        # number of observations in training data
+               pm,       # dimension of matX
+               matX,     # pm x n training data matX
+               M,        # 1 x n training data M
+               py,       # dimension of matM
+               matM,     # py x n training data matM
+               Y,        # 1 x n training data Y
+               u0.index,
+               n.j.vec,
+               uM,       # random effects for M, if estimated
+               uY,       # random effects for Y, if estimated
+               J,
+               B_uM,
+               B_uY,
+               ntree,
+               matXnumcut,
+               matMnumcut,
+               ndpost*keepevery,
+               nskip,
+               keepevery,
+               power,
+               base,
+               Moffset,
+               Yoffset,
+               Mtau,
+               Ytau,
+               nu,
+               Mlambda,
+               Ylambda,
+               Msigest,
+               Ysigest,
+               sparse,
+               theta,
+               omega,
+               a,
+               b,
+               matXrho,
+               matMrho,
+               augment,
+               printevery,
+               matXinfo,
+               matMinfo)
   res$proc.time <- proc.time()-ptm
   # --------------------------------------------------
   res$Mdraw.mean <- apply(res$Mdraw, 2, mean)

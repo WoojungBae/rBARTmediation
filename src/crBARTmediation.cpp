@@ -407,14 +407,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
+          Mz[i] = iM[i] - MOffset;
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*MOffset, 1., gen);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
+          Yz[i] = iY[i] - YOffset;
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*YOffset, 1., gen);
         }
       }
       
@@ -460,7 +460,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         ii=0;
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
-          
+
           ii_j = ii;
           sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
           sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
@@ -473,13 +473,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           mu_uM_j *= precM*pow(sd_uM_j, 2.);
           mu_uY_j *= precY*pow(sd_uY_j, 2.);
-          
+
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           RHOprop = gen.uniform(); // gen.uniform() * 2 - 1;
           mu_uY_j += (sd_uY_j / sd_uM_j) * RHOprop * (uMprop - mu_uM_j);
           sd_uY_j *= sqrt(1 - pow(RHOprop, 2));
           uYprop = gen.normal() * sd_uY_j + mu_uY_j;
-          
+
           ii_j = ii;
           YMlik_prop =
             R::dnorm(uMprop, mu_uM_j, sd_uM_j, true) +
@@ -490,7 +490,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
               R::dnorm(iY[ii_j], (YOffset + yBM.f(ii_j) + uYprop), iYsigest, true);
             ii_j++; ii++;
           }
-          
+
           // acceptance ratio
           double ratio = exp(YMlik_prop-YMlik_j[j]);
           if (ratio > gen.uniform()){
