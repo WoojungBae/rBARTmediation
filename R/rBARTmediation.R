@@ -150,13 +150,13 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
             B_uM <- 2 * sd(uM)
           }
         } else {
-          Msigest <- 2 * sd(M)
+          Msigest <- 1 * sd(M)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
       Mlambda <- (Msigest*Msigest*qchi)/nu # Mlambda parameter for sigma prior
     } else {
-      Msigest <- (Mlambda)
+      Msigest <- sqrt(Mlambda)
     }
     
     if(is.na(Mtau.num)) {
@@ -170,7 +170,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     Mlambda <- 1
     Msigest <- 1
     if(length(B_uM)==0) {
-      B_uM <- 2 * sd(M)
+      B_uM <- 1 * sd(M)
     }
     
     Mtau.num <- 3
@@ -188,13 +188,13 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
             B_uY <- 2 * sd(uY)
           }
         } else {
-          Ysigest <- 2 * sd(Y)
+          Ysigest <- 1 * sd(Y)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
       Ylambda <- (Ysigest*Ysigest*qchi)/nu # Ylambda parameter for sigma prior
     } else {
-      Ysigest <- (Ylambda)
+      Ysigest <- sqrt(Ylambda)
     }
     
     if(is.na(Ytau.num)) {
@@ -208,7 +208,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     Ylambda <- 1
     Ysigest <- 1
     if(length(B_uY)==0) {
-      B_uY <- 2 * sd(Y)
+      B_uY <- 1 * sd(Y)
     }
     
     Ytau.num <- 3
