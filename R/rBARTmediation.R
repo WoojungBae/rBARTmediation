@@ -94,14 +94,6 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
   n.j.vec <- as.numeric(table(u0.index))
   
   # --------------------------------------------------
-  tmp.order <- order(u0.index)
-  matX <- matX[tmp.order,]
-  matM <- matM[tmp.order,]
-  M <- M[tmp.order]
-  Y <- Y[tmp.order]
-  u0.index <- u0.index[tmp.order]
-  
-  # --------------------------------------------------
   if(!transposed) {
     matXtemp <- bartModelMatrix(matX, matXnumcut, usequants=usequants,
                                 xinfo=xinfo, rm.const=matXrm.const)
@@ -147,7 +139,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Msigest <- summary(lmeMtemp)$sigma
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- 2 * sd(uM)
+            B_uM <- 1 * sd(uM)
           }
         } else {
           Msigest <- 1 * sd(M)
@@ -185,7 +177,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Ysigest <- summary(lmeYtemp)$sigma
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- 2 * sd(uY)
+            B_uY <- 1 * sd(uY)
           }
         } else {
           Ysigest <- 1 * sd(Y)
