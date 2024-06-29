@@ -139,7 +139,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Msigest <- summary(lmeMtemp)$sigma
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- 1 * sd(uM)
+            B_uM <- 2 * sd(uM)
           }
         } else {
           Msigest <- 1 * sd(M)
@@ -162,7 +162,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     Mlambda <- 1
     Msigest <- 1
     if(length(B_uM)==0) {
-      B_uM <- 1 * sd(M)
+      B_uM <- 10 * sd(M)
     }
     
     Mtau.num <- 3
@@ -177,7 +177,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Ysigest <- summary(lmeYtemp)$sigma
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- 1 * sd(uY)
+            B_uY <- 2 * sd(uY)
           }
         } else {
           Ysigest <- 1 * sd(Y)
@@ -200,7 +200,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     Ylambda <- 1
     Ysigest <- 1
     if(length(B_uY)==0) {
-      B_uY <- 1 * sd(Y)
+      B_uY <- 10 * sd(Y)
     }
     
     Ytau.num <- 3
