@@ -139,10 +139,10 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Msigest <- summary(lmeMtemp)$sigma
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- 1 * sd(uM)
+            B_uM <- 5 * sd(uM)
           }
         } else {
-          Msigest <- 1 * sd(M)
+          Msigest <- 5 * sd(M)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
@@ -177,10 +177,10 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
           Ysigest <- summary(lmeYtemp)$sigma
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- 1 * sd(uY)
+            B_uY <- 5 * sd(uY)
           }
         } else {
-          Ysigest <- 1 * sd(Y)
+          Ysigest <- 5 * sd(Y)
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
