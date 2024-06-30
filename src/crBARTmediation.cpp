@@ -464,8 +464,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
-          sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
+          sd_uM_j = sqrt(B_uM * gen.uniform());
+          sd_uY_j = sqrt(B_uY * gen.uniform());
           mu_uM_j = 0.;
           mu_uY_j = 0.;
           
@@ -500,8 +500,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
-          sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
+          sd_uM_j = sqrt(B_uM * gen.uniform());
+          sd_uY_j = sqrt(B_uY * gen.uniform());
           mu_uM_j = 0.;
           mu_uY_j = 0.;
           
@@ -536,8 +536,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
-          sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
+          sd_uM_j = sqrt(B_uM * gen.uniform());
+          sd_uY_j = sqrt(B_uY * gen.uniform());
           mu_uM_j = 0.;
           mu_uY_j = 0.;
           
@@ -572,8 +572,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
-          sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
+          sd_uM_j = sqrt(B_uM * gen.uniform());
+          sd_uY_j = sqrt(B_uY * gen.uniform());
           mu_uM_j = 0.;
           mu_uY_j = 0.;
           
