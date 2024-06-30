@@ -398,18 +398,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     for(size_t postrep=0;postrep<total;postrep++) {
       //--------------------------------------------------
-      for(size_t i=0;i<n;i++) {
-        if(typeM==1){
-          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
-        } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-        }
-        if(typeY==1){
-          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
-        } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-        }
+      if(postrep==(burn/2)&&dart) {
+        mBM.startdart();
+        yBM.startdart();
       }
+      mBM.draw(iMsigest,gen);
+      yBM.draw(iYsigest,gen);
       
       //--------------------------------------------------
       // draw iMsigest and iYsigest
@@ -429,31 +423,35 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       }
       
       //--------------------------------------------------
-      if(postrep==(burn/2)&&dart) {
-        mBM.startdart();
-        yBM.startdart();
+      for(size_t i=0;i<n;i++) {
+        if(typeM==1){
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
+        } else if(typeM==2){
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
+        }
+        if(typeY==1){
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
+        } else if(typeY==2){
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
+        }
       }
       
-      //--------------------------------------------------
-      mBM.draw(iMsigest,gen);
-      yBM.draw(iYsigest,gen);
-      
-      //--------------------------------------------------
-      // draw tau_uM, tau_uY
-      double sum_uM2, sum_uY2;
-      sum_uM2=0.,sum_uY2=0.;
-      for(size_t j=0; j<J; j++) {
-        sum_uM2 += pow(uM[j], 2.);
-        sum_uY2 += pow(uY[j], 2.);
-      }
-      tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen); // tau_uM = std::min(tau_uM, 16*invB2M);
-      tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen); // tau_uY = std::min(tau_uY, 16*invB2Y);
+      // //--------------------------------------------------
+      // // draw tau_uM, tau_uY
+      // double sum_uM2, sum_uY2;
+      // sum_uM2=0.,sum_uY2=0.;
+      // for(size_t j=0; j<J; j++) {
+      //   sum_uM2 += pow(uM[j], 2.);
+      //   sum_uY2 += pow(uY[j], 2.);
+      // }
+      // tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen); // tau_uM = std::min(tau_uM, 16*invB2M);
+      // tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen); // tau_uY = std::min(tau_uY, 16*invB2Y);
       
       //--------------------------------------------------
       // draw uM, uY
       size_t n_j, ii;
-      double mu_uM_j, sd_uM_j, precM=pow(iMsigest, -2.);
-      double mu_uY_j, sd_uY_j, precY=pow(iYsigest, -2.);
+      double mu_uM_j, sd_uM_j; // , precM=pow(iMsigest, -2.);
+      double mu_uY_j, sd_uY_j; // , precY=pow(iYsigest, -2.);
       
       double YMlik_prop, uYprop, uMprop, RHOprop;
       
