@@ -46,18 +46,20 @@ prBARTmediation = function(object,  # object from rBARTmediation
   object$matXtreedraws$trees = gsub(",", " ", object$matXtreedraws$trees)
   M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
-  Mreff = object$uMdraw # object$sd.uM * object$uMdraw
+  Mreff = object$uMdraw
+  sd.uM = apply(object$uMdraw, 1, sd)
+  Msigest = sqrt(object$iMsigest^{2} + sd.uM^{2})
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      Mreff_tmp = c(Mreff[,j])
+      Mreff_tmp = rnorm(n_MCMC, Mreff[,j], sd.uM)
       M0res[,whichUindex] = M0res[,whichUindex] + Mreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + Mreff_tmp
     }
   }
   if(object$typeM == "continuous"){
-    M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], object$iMsigest))
-    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], object$iMsigest))
+    M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], Msigest))
+    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], Msigest))
   } else if(object$typeM == "binary"){
     M0.test = pnorm(M0res)
     M1.test = pnorm(M1res)
@@ -73,7 +75,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp2 = gsub(",", " ", treetmp1)
   treetmp3 = strsplit(treetmp1, ",")[[1]]
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
-  Yreff = object$uYdraw # object$sd.uY * object$uYdraw
+  Yreff = object$uYdraw
+  sd.uY = apply(object$uYdraw, 1, sd)
+  Ysigest = sqrt(object$iYsigest^{2} + sd.uY^{2})
 
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m0.test = matrix(nrow=n_MCMC,ncol=N)
@@ -93,7 +97,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        Yreff_tmp = c(Yreff[d,j])
+        Yreff_tmp = rnorm(1, Yreff[d,j], sd.uY)
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + Yreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + Yreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + Yreff_tmp
@@ -103,9 +107,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
       # Yz0m0.test[d,] = Yz0m0res
       # Yz1m0.test[d,] = Yz1m0res
       # Yz1m1.test[d,] = Yz1m1res
-      Yz0m0.test[d,] = rnorm(N, Yz0m0res, object$iYsigest[d])
-      Yz1m0.test[d,] = rnorm(N, Yz1m0res, object$iYsigest[d])
-      Yz1m1.test[d,] = rnorm(N, Yz1m1res, object$iYsigest[d])
+      Yz0m0.test[d,] = rnorm(N, Yz0m0res, Ysigest[d])
+      Yz1m0.test[d,] = rnorm(N, Yz1m0res, Ysigest[d])
+      Yz1m1.test[d,] = rnorm(N, Yz1m1res, Ysigest[d])
     } else if(object$typeY == "binary"){
       # Yz0m0res = pnorm(Yz0m0res)
       # Yz1m0res = pnorm(Yz1m0res)
