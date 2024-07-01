@@ -444,8 +444,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         sum_uM2 += pow(uM[j], 2.);
         sum_uY2 += pow(uY[j], 2.);
       }
-      tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen); // , tau_uM = std::min(tau_uM, 16*invB2M);
-      tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen); // , tau_uY = std::min(tau_uY, 16*invB2Y);
+      tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen), tau_uM = std::min(tau_uM, 16*invB2M);
+      tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen), tau_uY = std::min(tau_uY, 16*invB2Y);
       
       //--------------------------------------------------
       // draw uM, uY
