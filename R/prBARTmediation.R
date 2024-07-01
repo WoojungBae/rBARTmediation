@@ -46,15 +46,15 @@ prBARTmediation = function(object,  # object from rBARTmediation
   object$matXtreedraws$trees = gsub(",", " ", object$matXtreedraws$trees)
   M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
-  Mreff = object$uMdraw
+  uMreff = object$uMdraw
   sd.uM = apply(object$uMdraw, 1, sd)
   Msigest = sqrt(object$iMsigest^{2} + sd.uM^{2})
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      Mreff_tmp = rnorm(n_MCMC, Mreff[,j], sd.uM)
-      M0res[,whichUindex] = M0res[,whichUindex] + Mreff_tmp
-      M1res[,whichUindex] = M1res[,whichUindex] + Mreff_tmp
+      uMreff_tmp = rnorm(n_MCMC, uMreff[,j], sd.uM)
+      M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
+      M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
   }
   if(object$typeM == "continuous"){
@@ -75,7 +75,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp2 = gsub(",", " ", treetmp1)
   treetmp3 = strsplit(treetmp1, ",")[[1]]
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
-  Yreff = object$uYdraw
+  uYreff = object$uYdraw
   sd.uY = apply(object$uYdraw, 1, sd)
   Ysigest = sqrt(object$iYsigest^{2} + sd.uY^{2})
 
@@ -97,10 +97,10 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        Yreff_tmp = rnorm(1, Yreff[d,j], sd.uY)
-        Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + Yreff_tmp
-        Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + Yreff_tmp
-        Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + Yreff_tmp
+        uYreff_tmp = rnorm(1, uYreff[d,j], sd.uY)
+        Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
+        Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
+        Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
       }
     }
     if(object$typeY == "continuous"){
