@@ -48,7 +48,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
   uMreff = object$uMdraw
   sd.uM = apply(object$uMdraw, 1, sd)
-  Msigest = sqrt(object$iMsigest^{2} + sd.uM^{2})
+  Msigest = sqrt(object$iMsigest^{2} + (J-1) * sd.uM^{2})
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
@@ -77,7 +77,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
   uYreff = object$uYdraw
   sd.uY = apply(object$uYdraw, 1, sd)
-  Ysigest = sqrt(object$iYsigest^{2} + sd.uY^{2})
+  Ysigest = sqrt(object$iYsigest^{2} + (J-1) * sd.uY^{2})
 
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m0.test = matrix(nrow=n_MCMC,ncol=N)
