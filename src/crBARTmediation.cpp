@@ -150,8 +150,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
   Rcpp::NumericMatrix matMinfo(_matMinfo);
   Rcpp::NumericVector Msdraw(nkeeptrain);
   Rcpp::NumericVector Ysdraw(nkeeptrain);
-  // Rcpp::NumericVector Msdudraw(nkeeptrain);
-  // Rcpp::NumericVector Ysdudraw(nkeeptrain);
+  Rcpp::NumericVector Msdudraw(nkeeptrain);
+  Rcpp::NumericVector Ysdudraw(nkeeptrain);
   Rcpp::NumericMatrix Mdraw(nkeeptrain,n);
   Rcpp::NumericMatrix Ydraw(nkeeptrain,n);
   Rcpp::NumericMatrix uMdraw(nkeeptrain,J);
@@ -240,8 +240,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
                        unsigned int n2,
                        double* Msdraw,
                        double* Ysdraw,
-                       // double* Msdudraw,
-                       // double* Ysdudraw,
+                       double* Msdudraw,
+                       double* Ysdudraw,
                        double* _mdraw,
                        double* _ydraw,
                        double* _udraw) {
@@ -353,15 +353,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     // double *uM = new double[J];
     // double *uY = new double[J]; 
-    double sd_uM=B_uM*0.5; // , tau_uM=pow(sd_uM, -2.), invB2M=pow(B_uM, -2.);
-    double sd_uY=B_uY*0.5; // , tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
+    double sd_uM=B_uM*0.5, tau_uM=pow(sd_uM, -2.), invB2M=pow(B_uM, -2.);
+    double sd_uY=B_uY*0.5, tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
     if(uM[0]!=uM[0] || uY[0]!=uY[0]) {
       for(size_t j=0; j<J; j++) {
         uM[j]=sd_uM*gen.normal();
         uY[j]=sd_uY*gen.normal();
       }
     }
-    double YMzlik = - R_PosInf;
     double *RHO = new double[J];
     double *YMlik_j = new double[J];
     for(size_t j=0; j<J; j++) {
@@ -377,6 +376,21 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     yBM.setprior(alpha,mybeta,Ytau);
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
+    
+    //--------------------------------------------------
+    //--------------------------------------------------
+    for(size_t i=0;i<n;i++) {
+      if(typeM==1){
+        Mz[i] = iM[i] - (MOffset);
+      } else if(typeM==2){
+        Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset), 1., gen);
+      }
+      if(typeY==1){
+        Yz[i] = iY[i] - (YOffset);
+      } else if(typeY==2){
+        Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset), 1., gen);
+      }
+    }
     
     // dart iterations
     std::vector<double> imatXvarprb (pm,0.);
@@ -408,32 +422,17 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       
       //--------------------------------------------------
       //--------------------------------------------------
-      double *Mzprop = new double[n];
-      double *Yzprop = new double[n];
-      double YMzlik_prop = 0.;
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mzprop[i] = iM[i] - (MOffset+uM[u_index[i]]);
-          YMzlik_prop += R::dnorm(Mzprop[i], 0., iMsigest, true);
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]);
         } else if(typeM==2){
-          Mzprop[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-          YMzlik_prop += R::pnorm(Msign[i] * (MOffset+mBM.f(i)+uM[u_index[i]]), 0., 1., true, true);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
         }
         if(typeY==1){
-          Yzprop[i] = iY[i] - (YOffset+uY[u_index[i]]);
-          YMzlik_prop += R::dnorm(Yzprop[i], 0., iYsigest, true);
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]);
         } else if(typeY==2){
-          Yzprop[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-          YMzlik_prop += R::pnorm(Ysign[i] * (YOffset+yBM.f(i)+uY[u_index[i]]), 0., 1., true, true);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
         }
-      }
-      
-      // acceptance ratio
-      double ratio = exp(YMzlik_prop-YMzlik);
-      if (ratio > gen.uniform()){
-        YMzlik = YMzlik_prop;
-        Mz = Mzprop;
-        Yz = Yzprop;
       }
       
       //--------------------------------------------------
@@ -453,27 +452,26 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         iYsigest = sqrt((nu*Ylambda + Yrss)/gen.chi_square(df));
       }
       
-      // //--------------------------------------------------
-      // // draw tau_uM, tau_uY
-      // double sum_uM2, sum_uY2;
-      // sum_uM2=0.,sum_uY2=0.;
-      // for(size_t j=0; j<J; j++) {
-      //   sum_uM2 += pow(uM[j], 2.);
-      //   sum_uY2 += pow(uY[j], 2.);
-      // }
-      // tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen); // tau_uM = std::min(tau_uM, 16*invB2M);
-      // tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen); // tau_uY = std::min(tau_uY, 16*invB2Y);
+      //--------------------------------------------------
+      // draw tau_uM, tau_uY
+      double sum_uM2, sum_uY2;
+      sum_uM2=0.,sum_uY2=0.;
+      for(size_t j=0; j<J; j++) {
+        sum_uM2 += pow(uM[j], 2.);
+        sum_uY2 += pow(uY[j], 2.);
+      }
+      tau_uM = rtgamma(0.5*(J-1.), 0.5*sum_uM2, invB2M, gen), tau_uM = std::min(tau_uM, 16*invB2M);
+      tau_uY = rtgamma(0.5*(J-1.), 0.5*sum_uY2, invB2Y, gen), tau_uY = std::min(tau_uY, 16*invB2Y);
       
       //--------------------------------------------------
       // draw uM, uY
-      size_t n_j, ii;
-      double mu_uM_j, sd_uM_j; // , precM=pow(iMsigest, -2.);
-      double mu_uY_j, sd_uY_j; // , precY=pow(iYsigest, -2.);
-      
+      size_t n_j, ii, ii_j;
+      double mu_uM_j, sd_uM_j, precM=pow(iMsigest, -2.);
+      double mu_uY_j, sd_uY_j, precY=pow(iYsigest, -2.);
       double YMlik_prop, uYprop, uMprop, RHOprop;
       
-      sd_uM_j = sqrt(B_uM * gen.uniform());
-      sd_uY_j = sqrt(B_uY * gen.uniform());
+      sd_uM_j = 1/sqrt(tau_uM);
+      sd_uY_j = 1/sqrt(tau_uY);
       mu_uM_j = 0.;
       mu_uY_j = 0.;
       
@@ -644,8 +642,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             UYDRAW(trcnt,j) = uY[j];
             RHODRAW(trcnt,j) = RHO[j];
           }
-          // Msdudraw[trcnt] = pow(tau_uM, -0.5);
-          // Ysdudraw[trcnt] = pow(tau_uY, -0.5);
+          Msdudraw[trcnt] = 1/sqrt(tau_uM);
+          Ysdudraw[trcnt] = 1/sqrt(tau_uY);
           
           trcnt+=1;
           
@@ -703,8 +701,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     ret["uMdraw"]=uMdraw;
     ret["uYdraw"]=uYdraw;
     ret["RHOdraw"]=RHOdraw;
-    // ret["sd.uM"]=Msdudraw;
-    // ret["sd.uY"]=Ysdudraw;
+    ret["sd.uM"]=Msdudraw;
+    ret["sd.uY"]=Ysdudraw;
     ret["matXvarcount"]=matXvarcnt;
     ret["matMvarcount"]=matMvarcnt;
     ret["matXvarprob"]=matXvarprb;
