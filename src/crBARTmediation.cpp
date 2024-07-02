@@ -465,12 +465,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       
       //--------------------------------------------------
       // draw uM, uY
-      size_t n_j, ii, ii_j;
+      size_t n_j, ii;
       
       double YMlik_prop, RHOprop;
       double uYprop, mu_uY_prop, sd_uY_prop;
       double uMprop, mu_uM_prop, sd_uM_prop;
-      double precY = pow(iYsigest, -2.), precM = pow(iMsigest, -2.);
+      // double precY = pow(iYsigest, -2.), precM = pow(iMsigest, -2.);
       
       sd_uM_prop = 1/sqrt(tau_uM);
       sd_uY_prop = 1/sqrt(tau_uY);
