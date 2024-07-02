@@ -48,11 +48,11 @@ prBARTmediation = function(object,  # object from rBARTmediation
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
   sd.uM = object$sd.uM
   uMreff = object$uMdraw
-  Msigest = object$iMsigest # sqrt(object$iMsigest^{2} + sd.uM^{2})
+  Msigest = sqrt(object$iMsigest^{2} + sd.uM^{2})
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = rnorm(n_MCMC, 0, sd.uM) # uMreff[,j]
+      uMreff_tmp = rnorm(n_MCMC, uMreff[,j], sd.uM) # uMreff[,j]
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
@@ -77,7 +77,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
   sd.uY = object$sd.uY
   uYreff = object$uYdraw
-  Ysigest = object$iYsigest # sqrt(object$iYsigest^{2} + sd.uY^{2})
+  Ysigest = sqrt(object$iYsigest^{2} + sd.uY^{2})
   
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m0.test = matrix(nrow=n_MCMC,ncol=N)
@@ -97,7 +97,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = rnorm(1, 0, sd.uY[d]) # uYreff[d,j] # sd.uY[d]
+        uYreff_tmp = rnorm(1, uYreff[d,j], sd.uY[d]) # uYreff[d,j] # sd.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
