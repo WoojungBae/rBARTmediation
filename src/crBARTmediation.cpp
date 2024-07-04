@@ -469,14 +469,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
           mu_uM_j = 0.;
           mu_uY_j = 0.;
-          ii_j = ii;
-          for(size_t itmp=0; itmp<n_j; itmp++) {
-            mu_uM_j += (iM[ii_j]-(MOffset+mBM.f(ii_j)));
-            mu_uY_j += (iY[ii_j]-(YOffset+yBM.f(ii_j)));
-            ii_j++;
-          }
-          mu_uM_j *= precM*pow(sd_uM_j, 2.);
-          mu_uY_j *= precY*pow(sd_uY_j, 2.);
+          // ii_j = ii;
+          // for(size_t itmp=0; itmp<n_j; itmp++) {
+          //   mu_uM_j += (iM[ii_j]-(MOffset+mBM.f(ii_j)));
+          //   mu_uY_j += (iY[ii_j]-(YOffset+yBM.f(ii_j)));
+          //   ii_j++;
+          // }
+          // mu_uM_j *= precM*pow(sd_uM_j, 2.);
+          // mu_uY_j *= precY*pow(sd_uY_j, 2.);
           
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           RHOprop = gen.uniform() * 2 - 1; // gen.uniform();
@@ -516,12 +516,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           sd_uY_j = pow(tau_uY+n_j*precY, -0.5);
           mu_uY_j = 0.;
-          ii_j = ii;
-          for(size_t itmp=0; itmp<n_j; itmp++) {
-            mu_uY_j += (iY[ii_j]-(YOffset+yBM.f(ii_j)));
-            ii_j++;
-          }
-          mu_uY_j *= precY*pow(sd_uY_j, 2.);
+          // ii_j = ii;
+          // for(size_t itmp=0; itmp<n_j; itmp++) {
+          //   mu_uY_j += (iY[ii_j]-(YOffset+yBM.f(ii_j)));
+          //   ii_j++;
+          // }
+          // mu_uY_j *= precY*pow(sd_uY_j, 2.);
           uYprop = gen.normal() * sd_uY_j + mu_uY_j;
           
           // YMlik_prop
@@ -563,12 +563,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           sd_uM_j = pow(tau_uM+n_j*precM, -0.5);
           mu_uM_j = 0.;
-          ii_j = ii;
-          for(size_t itmp=0; itmp<n_j; itmp++) {
-            mu_uM_j += (iM[ii_j]-(MOffset+mBM.f(ii_j)));
-            ii_j++;
-          }
-          mu_uM_j *= precM*pow(sd_uM_j, 2.);
+          // ii_j = ii;
+          // for(size_t itmp=0; itmp<n_j; itmp++) {
+          //   mu_uM_j += (iM[ii_j]-(MOffset+mBM.f(ii_j)));
+          //   ii_j++;
+          // }
+          // mu_uM_j *= precM*pow(sd_uM_j, 2.);
           uMprop = gen.normal() * sd_uM_j + mu_uM_j;
           
           // YMlik_prop
