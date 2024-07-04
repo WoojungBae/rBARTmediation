@@ -495,6 +495,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             ii_j++; ii++;
           }
           
+          uM[j] = uMprop;
+          // uY[j] = uYprop;
+          
           // acceptance ratio
           double ratio = exp(YMlik_prop-YMlik_j[j]);
           if (ratio > gen.uniform()){
@@ -538,6 +541,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             ii_j++; ii++;
           }
           
+          uY[j] = uYprop;
+          
           // acceptance ratio
           double ratio = exp(YMlik_prop-YMlik_j[j]);
           if (ratio > gen.uniform()){
@@ -580,6 +585,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
               R::pnorm(Ysign[ii_j]*(YOffset + yBM.f(ii_j) + uYprop), 0., 1., true, true);
             ii_j++; ii++;
           }
+          
+          uM[j] = uMprop;
           
           // acceptance ratio
           double ratio = exp(YMlik_prop-YMlik_j[j]);

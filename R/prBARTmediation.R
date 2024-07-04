@@ -52,7 +52,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = rnorm(n_MCMC, uMreff[,j], sd.uM) # uMreff[,j]
+      uMreff_tmp = uMreff[,j] # rnorm(n_MCMC, uMreff[,j], sd.uM)
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
@@ -97,7 +97,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = rnorm(1, uYreff[d,j], sd.uY[d]) # uYreff[d,j] # sd.uY[d]
+        uYreff_tmp = uYreff[d,j] # rnorm(1, uYreff[d,j], sd.uY[d]) # sd.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
