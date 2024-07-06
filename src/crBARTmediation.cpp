@@ -356,7 +356,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         uY[j]=sd_uY*gen.normal();
       }
     }
-    // double YMzlik = - R_PosInf;
+    double YMzlik = - R_PosInf;
     double *RHO = new double[J];
     double *YMlik_j = new double[J];
     for(size_t j=0; j<J; j++) {
@@ -404,34 +404,30 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       double *Mzprop = new double[n];
       double *Yzprop = new double[n];
-      // double YMzlik_prop = 0.;
+      double YMzlik_prop = 0.;
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
           Mzprop[i] = iM[i] - (MOffset+uM[u_index[i]]);
-          // YMzlik_prop += R::dnorm(Mzprop[i], 0., iMsigest, true);
+          YMzlik_prop += R::dnorm(Mzprop[i], 0., iMsigest, true);
         } else if(typeM==2){
           Mzprop[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-          // YMzlik_prop += R::pnorm(Msign[i] * (MOffset+mBM.f(i)+uM[u_index[i]]), 0., 1., true, true);
+          YMzlik_prop += R::pnorm(Msign[i] * (MOffset+mBM.f(i)+uM[u_index[i]]), 0., 1., true, true);
         }
         if(typeY==1){
           Yzprop[i] = iY[i] - (YOffset+uY[u_index[i]]);
-          // YMzlik_prop += R::dnorm(Yzprop[i], 0., iYsigest, true);
+          YMzlik_prop += R::dnorm(Yzprop[i], 0., iYsigest, true);
         } else if(typeY==2){
           Yzprop[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-          // YMzlik_prop += R::pnorm(Ysign[i] * (YOffset+yBM.f(i)+uY[u_index[i]]), 0., 1., true, true);
+          YMzlik_prop += R::pnorm(Ysign[i] * (YOffset+yBM.f(i)+uY[u_index[i]]), 0., 1., true, true);
         }
       }
-      
-      Mz = Mzprop;
-      Yz = Yzprop;
-      
-      // // acceptance ratio
-      // double ratio = exp(YMzlik_prop-YMzlik);
-      // if (ratio > gen.uniform()){
-      //   YMzlik = YMzlik_prop;
-      //   Mz = Mzprop;
-      //   Yz = Yzprop;
-      // }
+      // acceptance ratio
+      double ratio = exp(YMzlik_prop-YMzlik);
+      if (ratio > gen.uniform()){
+        YMzlik = YMzlik_prop;
+        Mz = Mzprop;
+        Yz = Yzprop;
+      }
       
       //--------------------------------------------------
       // draw iMsigest and iYsigest
