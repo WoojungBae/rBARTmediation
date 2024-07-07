@@ -559,19 +559,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       // draw uM, uY
       double mu_uM_prop = 0., mu_uY_prop = 0.;
-      for(size_t j=0; j<J; j++) {
-        mu_uM_prop += uM[j];
-        mu_uY_prop += uY[j];
-      }
-      mu_uM_prop /= J;
-      mu_uY_prop /= J;
+      // for(size_t j=0; j<J; j++) {
+      //   mu_uM_prop += uM[j];
+      //   mu_uY_prop += uY[j];
+      // }
+      // mu_uM_prop /= J;
+      // mu_uY_prop /= J;
 
       //--------------------------------------------------
       // draw tau_uM, tau_uY
       double sd_uM_prop = 0., sd_uY_prop = 0.;
       for(size_t j=0; j<J; j++) {
-        sd_uM_prop += pow(uM[j] - mu_uM_prop, 2.);
-        sd_uY_prop += pow(uY[j] - mu_uY_prop, 2.);
+        sd_uM_prop += pow(uM[j], 2.); // pow(uM[j] - mu_uM_prop, 2.);
+        sd_uY_prop += pow(uY[j], 2.); // pow(uY[j] - mu_uY_prop, 2.);
       }
       sd_uM_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uM_prop, invB2M, gen));
       sd_uY_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uY_prop, invB2Y, gen));

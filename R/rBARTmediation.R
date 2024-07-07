@@ -135,11 +135,11 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     if(is.na(Mlambda)) {
       if(is.na(Msigest)) {
         if(pm < n) {
-          lmeMtemp <- lme(M~., random=~1|factor(u0.index), data.frame(t(matX[-1,]),u0.index,M))
+          lmeMtemp <- lme(M~., random=~1|factor(u0.index), data.frame(t(matX),u0.index,M))
           Msigest <- summary(lmeMtemp)$sigma
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- 2 * sd(uM)
+            B_uM <- 1 * sd(uM)
           }
         } else {
           Msigest <- 1 * sd(M)
@@ -173,11 +173,11 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
     if(is.na(Ylambda)) {
       if(is.na(Ysigest)) {
         if(py < n) {
-          lmeYtemp <- lme(Y~., random=~1|factor(u0.index), data.frame(t(matM[-2,]),u0.index,Y))
+          lmeYtemp <- lme(Y~., random=~1|factor(u0.index), data.frame(t(matM),u0.index,Y))
           Ysigest <- summary(lmeYtemp)$sigma
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- 2 * sd(uY)
+            B_uY <- 1 * sd(uY)
           }
         } else {
           Ysigest <- 1 * sd(Y)
