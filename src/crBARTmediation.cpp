@@ -573,10 +573,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         sd_uM_prop += pow(uM[j] - mu_uM_prop, 2.);
         sd_uY_prop += pow(uY[j] - mu_uY_prop, 2.);
       }
-      sd_uM_prop = rtgamma(0.5*(J-1.), 0.5*sd_uM_prop, invB2M, gen);
-      sd_uY_prop = rtgamma(0.5*(J-1.), 0.5*sd_uY_prop, invB2Y, gen);
-      sd_uM_prop = std::min(sd_uM_prop, 1/sqrt(B_uM * gen.uniform()));
-      sd_uY_prop = std::min(sd_uY_prop, 1/sqrt(B_uY * gen.uniform()));
+      sd_uM_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uM_prop, invB2M, gen));
+      sd_uY_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uY_prop, invB2Y, gen));
+      sd_uM_prop = std::max(sd_uM_prop, 1/sqrt(B_uM * gen.uniform()));
+      sd_uY_prop = std::max(sd_uY_prop, 1/sqrt(B_uY * gen.uniform()));
       
       //--------------------------------------------------
       //--------------------------------------------------
