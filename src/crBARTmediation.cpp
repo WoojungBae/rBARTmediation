@@ -425,16 +425,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         }
       }
       
-      Mz = Mzprop;
-      Yz = Yzprop;
-      
-      // // acceptance ratio
-      // ratio = exp(YMzlik_prop-YMzlik);
-      // if (ratio > gen.uniform()){
-      //   YMzlik = YMzlik_prop;
-      //   Mz = Mzprop;
-      //   Yz = Yzprop;
-      // }
+      // acceptance ratio
+      ratio = exp(YMzlik_prop-YMzlik);
+      if (ratio > gen.uniform()){
+        YMzlik = YMzlik_prop;
+        Mz = Mzprop;
+        Yz = Yzprop;
+      }
       
       //--------------------------------------------------
       // draw iMsigest and iYsigest
@@ -558,7 +555,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       //--------------------------------------------------
       // draw uM, uY
-      double mu_uM_prop = 0., mu_uY_prop = 0.;
+      // double mu_uM_prop = 0., mu_uY_prop = 0.;
       // for(size_t j=0; j<J; j++) {
       //   mu_uM_prop += uM[j];
       //   mu_uY_prop += uY[j];
@@ -568,15 +565,18 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
 
       //--------------------------------------------------
       // draw tau_uM, tau_uY
-      double sd_uM_prop = 0., sd_uY_prop = 0.;
-      for(size_t j=0; j<J; j++) {
-        sd_uM_prop += pow(uM[j], 2.); // pow(uM[j] - mu_uM_prop, 2.);
-        sd_uY_prop += pow(uY[j], 2.); // pow(uY[j] - mu_uY_prop, 2.);
-      }
-      sd_uM_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uM_prop, invB2M, gen));
-      sd_uY_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uY_prop, invB2Y, gen));
-      sd_uM_prop = std::max(sd_uM_prop, 1/sqrt(B_uM * gen.uniform()));
-      sd_uY_prop = std::max(sd_uY_prop, 1/sqrt(B_uY * gen.uniform()));
+      // double sd_uM_prop = 0., sd_uY_prop = 0.;
+      // for(size_t j=0; j<J; j++) {
+      //   sd_uM_prop += pow(uM[j], 2.); // pow(uM[j] - mu_uM_prop, 2.);
+      //   sd_uY_prop += pow(uY[j], 2.); // pow(uY[j] - mu_uY_prop, 2.);
+      // }
+      // sd_uM_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uM_prop, invB2M, gen));
+      // sd_uY_prop = sqrt(1/rtgamma(0.5*(J-1.), 0.5*sd_uY_prop, invB2Y, gen));
+      // sd_uM_prop = std::max(sd_uM_prop, sqrt(B_uM * gen.uniform()));
+      // sd_uY_prop = std::max(sd_uY_prop, sqrt(B_uY * gen.uniform()));
+      
+      double mu_uM_prop = gen.normal() * 5, sd_uM_prop = sqrt(gen.uniform() * B_uM * 4);
+      double mu_uY_prop = gen.normal() * 5, sd_uY_prop = sqrt(gen.uniform() * B_uY * 4);
       
       //--------------------------------------------------
       //--------------------------------------------------
