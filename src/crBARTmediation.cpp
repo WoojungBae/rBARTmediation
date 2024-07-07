@@ -466,19 +466,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         sd_uM_prop += pow(uM[j] - mu_uM_prop, 2.);
         sd_uY_prop += pow(uY[j] - mu_uY_prop, 2.);
       }
-      sd_uM_prop = sqrt(sd_uM_prop/(J-1.) + B_uM * gen.uniform());
-      sd_uY_prop = sqrt(sd_uY_prop/(J-1.) + B_uM * gen.uniform());
+      sd_uM_prop = sqrt(sd_uM_prop/(J-1.));
+      sd_uY_prop = sqrt(sd_uY_prop/(J-1.));
       
       //--------------------------------------------------
       // draw tau_uM, tau_uY
       double sum_uM2, sum_uY2;
       sum_uM2=0.,sum_uY2=0.;
       for(size_t j=0; j<J; j++) {
-        sum_uM2 += pow(uM[j], 2.);
-        sum_uY2 += pow(uY[j], 2.);
+        sum_uM2 += pow(uM[j] - mu_uM_prop, 2.);
+        sum_uY2 += pow(uY[j] - mu_uY_prop, 2.);
       }
-      sd_uM_prop = 1/rtgamma(0.5*(J-1.), 0.5*(sum_uM2), invB2M, gen); tau_uM = std::max(tau_uM, sqrt(B_uM * gen.uniform()));
-      sd_uM_prop = 1/rtgamma(0.5*(J-1.), 0.5*(sum_uY2), invB2Y, gen); tau_uY = std::max(tau_uY, sqrt(B_uY * gen.uniform()));
+      sd_uM_prop = 1/rtgamma(0.5*(J-1.), 0.5*(sum_uM2), invB2M, gen); sd_uM_prop = std::max(sd_uM_prop, sqrt(B_uM * gen.uniform()));
+      sd_uM_prop = 1/rtgamma(0.5*(J-1.), 0.5*(sum_uY2), invB2Y, gen); sd_uM_prop = std::max(sd_uM_prop, sqrt(B_uY * gen.uniform()));
       
       double rho_uYM_prop = gen.uniform() * 2 - 1; // gen.uniform();
       // double sd_uM_prop = sqrt(5 * B_uM * gen.uniform());
