@@ -425,13 +425,16 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         }
       }
       
-      // acceptance ratio
-      ratio = exp(YMzlik_prop-YMzlik);
-      if (ratio > gen.uniform()){
-        YMzlik = YMzlik_prop;
-        Mz = Mzprop;
-        Yz = Yzprop;
-      }
+      Mz = Mzprop;
+      Yz = Yzprop;
+      
+      // // acceptance ratio
+      // ratio = exp(YMzlik_prop-YMzlik);
+      // if (ratio > gen.uniform()){
+      //   YMzlik = YMzlik_prop;
+      //   Mz = Mzprop;
+      //   Yz = Yzprop;
+      // }
       
       //--------------------------------------------------
       // draw iMsigest and iYsigest
