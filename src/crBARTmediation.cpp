@@ -437,18 +437,18 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       mBM.draw(iMsigest,gen);
       yBM.draw(iYsigest,gen);
       
-      //--------------------------------------------------
-      // draw tau_uM, tau_uY
-      double sum_uM2, sum_uY2;
-      sum_uM2=0.,sum_uY2=0.;
-      for(size_t j=0; j<J; j++) {
-        sum_uM2 += pow(uM[j], 2.);
-        sum_uY2 += pow(uY[j], 2.);
-      }
-      tau_uM = rtgamma(0.5*(J-1.), 0.5*(sum_uM2), invB2M, gen);
-      tau_uY = rtgamma(0.5*(J-1.), 0.5*(sum_uY2), invB2Y, gen);
-      // tau_uY = std::min(tau_uY, 16 * invB2M);
-      // tau_uM = std::min(tau_uM, 16 * invB2Y);
+      // //--------------------------------------------------
+      // // draw tau_uM, tau_uY
+      // double sum_uM2, sum_uY2;
+      // sum_uM2=0.,sum_uY2=0.;
+      // for(size_t j=0; j<J; j++) {
+      //   sum_uM2 += pow(uM[j], 2.);
+      //   sum_uY2 += pow(uY[j], 2.);
+      // }
+      // tau_uM = rtgamma(0.5*(J-1.), 0.5*(sum_uM2), invB2M, gen);
+      // tau_uY = rtgamma(0.5*(J-1.), 0.5*(sum_uY2), invB2Y, gen);
+      // // tau_uY = std::min(tau_uY, 16 * invB2M);
+      // // tau_uM = std::min(tau_uM, 16 * invB2Y);
       
       // double rho_uYMprop = (gen.uniform() - 0.5) * 1.;
       // double rho_uYMprop = (gen.uniform() - 0.5) * 1.5;
@@ -469,6 +469,44 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       // arma::mat T = {{1/tau_uM, rho_uYMprop/sqrt(tau_uM*tau_uY)},
       // {rho_uYMprop/sqrt(tau_uM*tau_uY), 1/tau_uY}};
       // arma::mat W = iwishrnd(T, 6.7);
+      
+      
+      //--------------------------------------------------
+      double mean_uM, mean_uY;
+      mean_uM = 0., mean_uY = 0.;
+      for(size_t j=0; j<J; j++) {
+        mean_uM += uM[j];
+        mean_uY += uY[j];
+      }
+      mean_uM /= J;
+      mean_uY /= J;
+      
+      double sum_uM2, sum_uY2, sum_uMY;
+      sum_uM2=0.,sum_uY2=0.;
+      for(size_t j=0; j<J; j++) {
+        sum_uM2 += pow(uM[j] - mean_uM, 2.);
+        sum_uY2 += pow(uY[j] - mean_uY, 2.);
+        sum_uY2 += (uM[j] - mean_uM) * (uY[j] - mean_uY);
+      }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       
       //--------------------------------------------------
