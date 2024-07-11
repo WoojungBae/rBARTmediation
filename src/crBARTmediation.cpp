@@ -16,7 +16,9 @@
  *  along with this program; if not, a copy is available at
  *  https://www.R-project.org/Licenses/GPL-2
  */
+// [[Rcpp::depends(RcppArmadillo)]]
 
+#include <RcppArmadillo.h>
 #include <ctime>
 #include "common.h"
 #include "tree.h"
@@ -399,23 +401,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         mBM.startdart();
         yBM.startdart();
       }
-      mBM.draw(iMsigest,gen);
-      yBM.draw(iYsigest,gen);
-      
-      //--------------------------------------------------
-      //--------------------------------------------------
-      for(size_t i=0;i<n;i++) {
-        if(typeM==1){
-          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // (MOffset+uM[u_index[i]])
-        } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-        }
-        if(typeY==1){
-          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // YOffset+uY[u_index[i]])
-        } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-        }
-      }
       
       //--------------------------------------------------
       // draw iMsigest and iYsigest
@@ -435,6 +420,24 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       }
       
       //--------------------------------------------------
+      for(size_t i=0;i<n;i++) {
+        if(typeM==1){
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // (MOffset+uM[u_index[i]])
+        } else if(typeM==2){
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
+        }
+        if(typeY==1){
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // YOffset+uY[u_index[i]])
+        } else if(typeY==2){
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
+        }
+      }
+      
+      //--------------------------------------------------
+      mBM.draw(iMsigest,gen);
+      yBM.draw(iYsigest,gen);
+      
+      //--------------------------------------------------
       // draw tau_uM, tau_uY
       double sum_uM2, sum_uY2;
       sum_uM2=0.,sum_uY2=0.;
@@ -447,7 +450,27 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       // tau_uY = std::min(tau_uY, 16 * invB2M);
       // tau_uM = std::min(tau_uM, 16 * invB2Y);
       
-      //--------------------------------------------------
+      // double rho_uYMprop = (gen.uniform() - 0.5) * 1.;
+      // double rho_uYMprop = (gen.uniform() - 0.5) * 1.5;
+      // double rho_uYMprop = (gen.uniform() - 0.5) * 1.6;
+      // double rho_uYMprop = gen.uniform();
+      // rho_uYMprop = R::qnorm(rho_uYMprop * R::pnorm(1., 0., 1., false, false) + 
+      //   (1 - rho_uYMprop) * R::pnorm(-1., 0., 1., false, false), 0., 1., false, false);
+      // double rho_uYMprop;
+      // double U = gen.uniform();
+      // if (U < 0.5){
+      //   rho_uYMprop = -1 + sqrt(2 * U);
+      // } else {
+      //   rho_uYMprop =  1 - sqrt(2 * (1 - U));
+      // }
+      double rho_uYMprop = (gen.uniform() - 0.5) * 2;
+      double sqrt1rho2_uYMprop = sqrt(1 - pow(rho_uYMprop, 2));
+      
+      // arma::mat T = {{1/tau_uM, rho_uYMprop/sqrt(tau_uM*tau_uY)},
+      // {rho_uYMprop/sqrt(tau_uM*tau_uY), 1/tau_uY}};
+      // arma::mat W = iwishrnd(T, 6.7);
+      
+      
       //--------------------------------------------------
       // draw uM, uY
       size_t n_j, ii, ii_j;
@@ -460,23 +483,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       for(size_t j=0; j<J; j++) {
         uYMlik_j_prop[j] = 0.;
       }
-
-      // double rho_uYMprop = (gen.uniform() - 0.5) * 1.;
-      // double rho_uYMprop = (gen.uniform() - 0.5) * 1.5;
-      double rho_uYMprop = (gen.uniform() - 0.5) * 1.6;
-      // double rho_uYMprop = (gen.uniform() - 0.5) * 2;
-      // double rho_uYMprop = gen.uniform();
-      // rho_uYMprop = R::qnorm(rho_uYMprop * R::pnorm(1., 0., 1., false, false) + 
-      //   (1 - rho_uYMprop) * R::pnorm(-1., 0., 1., false, false), 0., 1., false, false);
-      // double rho_uYMprop;
-      // double U = gen.uniform();
-      // if (U < 0.5){
-      //   rho_uYMprop = -1 + sqrt(2 * U);
-      // } else {
-      //   rho_uYMprop =  1 - sqrt(2 * (1 - U));
-      // }
       
-      double sqrt1rho2_uYMprop = sqrt(1 - pow(rho_uYMprop, 2));
       ii=0;
       if (typeM==1 && typeY==1) {
         //--------------------------------------------------
@@ -662,10 +669,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         }
         if(nkeeptrain && (((postrep-burn+1) % skiptr) == 0)) {
           for(size_t i=0;i<n;i++) {
-            MDRAW(trcnt,i) = mBM.f(i);
-            YDRAW(trcnt,i) = yBM.f(i);
-            // MDRAW(trcnt,i) = MOffset + mBM.f(i);
-            // YDRAW(trcnt,i) = YOffset + yBM.f(i);
+            // MDRAW(trcnt,i) = mBM.f(i);
+            // YDRAW(trcnt,i) = yBM.f(i);
+            MDRAW(trcnt,i) = MOffset + mBM.f(i);
+            YDRAW(trcnt,i) = YOffset + yBM.f(i);
             // MDRAW(trcnt,i) = MOffset + mBM.f(i) + uM[u_index[i]];
             // YDRAW(trcnt,i) = YOffset + yBM.f(i) + uY[u_index[i]];
           }
