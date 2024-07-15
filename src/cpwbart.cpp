@@ -40,7 +40,7 @@ RcppExport SEXP cpwbart(
    //--------------------------------------------------
    //get threadcount
    int tc = Rcpp::as<int>(_itc);
-   cout << "tc (threadcount): " << tc << endl;
+   // cout << "tc (threadcount): " << tc << endl;
    //--------------------------------------------------
    //process trees
    Rcpp::List trees(_itrees);

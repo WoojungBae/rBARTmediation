@@ -365,10 +365,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_vec_2 = arma::zeros(2);
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
-    double nu_uMY0 = 4; // p + 2 = 2 + 2 = 4
-    double lambda_uMY0 = 1;
+    double nu_uMY0 = 4; // > p + 1 (p=2)
+    double lambda_uMY0 = 0.1;
     
     arma::vec MU_uMY0 = zero_vec_2;
+    // arma::mat SIG_uMY0 = eye_mat_22;
+    // arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
     arma::mat SIG_uMY0 = {{B_uM, 0.}, {0., B_uY}};
     arma::mat invSIG_uMY0 = {{1/B_uM, 0.}, {0., 1/B_uY}}; // inv(SIG_uMY0);
     
@@ -448,6 +450,22 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     for(size_t postrep=0;postrep<total;postrep++) {
       //--------------------------------------------------
+      if(typeM1){
+        double Mrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.);
+        }
+        iMsigest = sqrt((nu*Mlambda + Mrss)/gen.chi_square(df));
+      }
+      if(typeY1){
+        double Yrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.);
+        }
+        iYsigest = sqrt((nu*Ylambda + Yrss)/gen.chi_square(df));
+      }
+      
+      //--------------------------------------------------
       if(postrep==(burn/2)&&dart) {
         mBM.startdart();
         yBM.startdart();
@@ -456,65 +474,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       yBM.draw(iYsigest,gen);
       
       //--------------------------------------------------
-      if(typeM1){
-        double Mrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Mrss += pow((iM[i]-(MOffset+mBM.f(i))), 2.); // +uM[u_index[i]]
-        }
-        iMsigest = sqrt((nu*Mlambda + Mrss)/gen.chi_square(df));
-      }
-      if(typeY1){
-        double Yrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Yrss += pow((iY[i]-(YOffset+yBM.f(i))), 2.); // +uY[u_index[i]]
-        }
-        iYsigest = sqrt((nu*Ylambda + Yrss)/gen.chi_square(df));
-      }
-      
-      //--------------------------------------------------
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (MOffset); // +uM[u_index[i]]
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // +uM[u_index[i]]
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset), 1., gen);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (YOffset); // +uY[u_index[i]]
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // +uY[u_index[i]]
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset), 1., gen);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
         }
       }
       
-      // //--------------------------------------------------
-      // if(typeM1){
-      //   double Mrss = 0.;
-      //   for(size_t i=0;i<n;i++) {
-      //     Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.);
-      //   }
-      //   iMsigest = sqrt((nu*Mlambda + Mrss)/gen.chi_square(df));
-      // }
-      // if(typeY1){
-      //   double Yrss = 0.;
-      //   for(size_t i=0;i<n;i++) {
-      //     Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.);
-      //   }
-      //   iYsigest = sqrt((nu*Ylambda + Yrss)/gen.chi_square(df));
-      // }
-      // 
-      // //--------------------------------------------------
-      // for(size_t i=0;i<n;i++) {
-      //   if(typeM==1){
-      //     Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // +uM[u_index[i]]
-      //   } else if(typeM==2){
-      //     Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-      //   }
-      //   if(typeY==1){
-      //     Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // +uY[u_index[i]]
-      //   } else if(typeY==2){
-      //     Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-      //   }
-      // }
-
       //--------------------------------------------------
       // draw SIG_uMY
       arma::vec uMY = zero_vec_2;
@@ -566,11 +538,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           for(size_t itmp=0; itmp<n_j; itmp++) {
             MU_uMY_prop(0) += (iM[ii_j]-(MOffset+mBM.f(ii_j)));
             MU_uMY_prop(1) += (iY[ii_j]-(YOffset+yBM.f(ii_j)));
-            ii_j++;
+            ii_j++; ii++;
           }
-          MU_uMY_prop(0) /= n_j*precM;
-          MU_uMY_prop(1) /= n_j*precY;
-          MU_uMY_prop = invSIG_uMY * MU_uMY + SIG_uMY_prop * MU_uMY_prop;
+          MU_uMY_prop(0) *= precM;
+          MU_uMY_prop(1) *= precY;
+          MU_uMY_prop = SIG_uMY_prop * (invSIG_uMY * MU_uMY + MU_uMY_prop);
 
           arma::vec uMYprop = arma::mvnrnd(MU_uMY_prop, SIG_uMY_prop);
           uM[j] = uMYprop(0);
