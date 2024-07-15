@@ -174,7 +174,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     _matXxi.resize(pm);
     for(size_t q=0;q<pm;q++) {
       _matXxi[q].resize(matXnc[q]);
-      for(size_t j=0;j<matXnc[q];j++) _matXxi[q][j]=matXinfo(q, j);
+      for(int j=0;j<matXnc[q];j++) _matXxi[q][j]=matXinfo(q, j);
     }
     mBM.setxinfo(_matXxi);
   }
@@ -184,7 +184,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     _matMxi.resize(py);
     for(size_t q=0;q<py;q++) {
       _matMxi[q].resize(matMnc[q]);
-      for(size_t j=0;j<matMnc[q];j++) _matMxi[q][j]=matMinfo(q, j);
+      for(int j=0;j<matMnc[q];j++) _matMxi[q][j]=matMinfo(q, j);
     }
     yBM.setxinfo(_matMxi);
   }
@@ -538,7 +538,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
 
       //--------------------------------------------------
       // draw uM, uY
-      int n_j, ii, ii_j;
+      size_t n_j, ii, ii_j;
       double precM=pow(iMsigest, -2.), precY=pow(iYsigest, -2.);
 
       double *uMprop = new double[J];
@@ -547,7 +547,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       for(size_t j=0; j<J; j++) {
         uYMlik_j_prop[j] = 0.;
       }
-
+      
       ii=0;
       if (typeM==1 && typeY==1) {
         //--------------------------------------------------
@@ -732,7 +732,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //   uM = uMprop;
       //   uY = uYprop;
       // }
-
+    
       //--------------------------------------------------
       if(postrep>=burn) {
         if(postrep%printevery==0) {

@@ -128,7 +128,7 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
     _xi.resize(p);
     for(size_t q=0;q<p;q++) {
       _xi[q].resize(numcut[q]);
-      for(size_t j=0;j<numcut[q];j++) _xi[q][j]=Xinfo(q, j);
+      for(int j=0;j<numcut[q];j++) _xi[q][j]=Xinfo(q, j);
     }
     bm.setxinfo(_xi);
   }
@@ -279,7 +279,6 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
     xinfo& xi = bm.getxinfo();
     
     for(size_t postrep=0;postrep<total;postrep++) {
-      if(postrep%printevery==0) printf("done %zu (out of %zu)\n",postrep,numdraw+burn);
       if(postrep==(burn/2)&&dart) bm.startdart();
       //--------------------------------------------------
       // draw bart
