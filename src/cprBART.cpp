@@ -36,8 +36,8 @@ RcppExport SEXP cprBART(SEXP _itrees,	// treedraws list from fbart
   
   //--------------------------------------------------
   // get threadcount
-  // int tc = Rcpp::as<int>(_itc);
-  // cout << "tc (threadcount): " << tc << endl;
+  int tc = Rcpp::as<int>(_itc);
+  cout << "tc (threadcount): " << tc << endl;
   //--------------------------------------------------
   // process trees
   Rcpp::List trees(_itrees);
