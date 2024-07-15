@@ -275,7 +275,8 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
     bool keeptreedraw, type1sigest=(typeY==1 && lambda!=0.);
     
     time_t tp;
-    int time1 = time(&tp), total=numdraw+burn;
+    int time1 = time(&tp);
+    size_t total=numdraw+burn;
     xinfo& xi = bm.getxinfo();
     
     for(size_t postrep=0;postrep<total;postrep++) {
@@ -341,6 +342,9 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
       
       //--------------------------------------------------
       if(postrep>=burn) {
+        if(postrep%printevery==0) {
+          printf("done %zu (out of %zu)\n",postrep,numdraw+burn);
+        }
         if(nkeeptrain && (((postrep-burn+1) % skiptr) ==0)) {
           for(size_t i=0;i<n;i++) {
             YDRAW(trcnt,i)=Offset+bm.f(i);

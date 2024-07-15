@@ -441,7 +441,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     bool keeptreedraw, typeM1=(typeM==1 && Mlambda!=0.), typeY1=(typeY==1 && Ylambda!=0.);
     
     time_t tp;
-    int time1 = time(&tp), total=numdraw+burn;
+    int time1 = time(&tp);
+    size_t total=numdraw+burn;
     xinfo& matXxi = mBM.getxinfo();
     xinfo& matMxi = yBM.getxinfo();
     
