@@ -40,21 +40,21 @@ prBARTmediation = function(object,  # object from rBARTmediation
     stop(paste0('The number of columns in matX.test must be equal to ', pm))
   }
   
-  # --------------------------------------------------
-  # --------------------------------------------------
-  # --------------------------------------------------
-  mu.uM = as.numeric(object$mu.uM)
-  mu.uY = as.numeric(object$mu.uY)
-  sd.uM = as.numeric(object$sd.uM)
-  sd.uY = as.numeric(object$sd.uY)
-  cor.uYM = as.numeric(object$cor.uYM)
-  sig.uMM = sd.uM^{2}
-  sig.uYY = sd.uY^{2}
-  sig.uMY = cor.uYM * sd.uM * sd.uY
-  MU.uMY = cbind(mu.uM , mu.uY)
-  SIG.uMY = lapply(1:n_MCMC, function(d) 
-    rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
-  uMYreff = sapply(1:n_MCMC, function(d) .Call("crmvnorm", J, MU.uMY[d,], SIG.uMY[[d]]), simplify = "array")
+  # # --------------------------------------------------
+  # # --------------------------------------------------
+  # # --------------------------------------------------
+  # mu.uM = as.numeric(object$mu.uM)
+  # mu.uY = as.numeric(object$mu.uY)
+  # sd.uM = as.numeric(object$sd.uM)
+  # sd.uY = as.numeric(object$sd.uY)
+  # cor.uYM = as.numeric(object$cor.uYM)
+  # sig.uMM = sd.uM^{2}
+  # sig.uYY = sd.uY^{2}
+  # sig.uMY = cor.uYM * sd.uM * sd.uY
+  # MU.uMY = cbind(mu.uM , mu.uY)
+  # SIG.uMY = lapply(1:n_MCMC, function(d) 
+  #   rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
+  # uMYreff = sapply(1:n_MCMC, function(d) .Call("crmvnorm", J, MU.uMY[d,], SIG.uMY[[d]]), simplify = "array")
   
   # --------------------------------------------------
   # --------------------------------------------------
@@ -67,7 +67,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = uMYreff[j,1,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sd.uM) # mu.uM # sd.uM
+      uMreff_tmp = uMreff[,j] # uMYreff[j,1,] # rnorm(n_MCMC, mu.uM, sd.uM) # mu.uM # sd.uM
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
@@ -111,7 +111,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = uMYreff[j,2,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sd.uY[d]) # mu.uY[d] # sd.uY[d]
+        uYreff_tmp = uYreff[d,j] # uMYreff[j,2,d] # rnorm(1, mu.uY[d], sd.uY[d]) # mu.uY[d] # sd.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp

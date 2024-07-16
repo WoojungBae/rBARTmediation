@@ -582,7 +582,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
-            MU_uMYprop(0) += (Mz[ii]-(MOffset+mBM.f(ii)));
+            MU_uMYprop(0) += (Mz[ii]-(mBM.f(ii))); // use latent variable for binary M
             MU_uMYprop(1) += (iY[ii]-(YOffset+yBM.f(ii)));
             ii++;
           }
@@ -633,7 +633,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
             MU_uMYprop(0) += (iM[ii]-(MOffset+mBM.f(ii)));
-            MU_uMYprop(1) += (Yz[ii]-(YOffset+yBM.f(ii)));
+            MU_uMYprop(1) += (Yz[ii]-(yBM.f(ii))); // use latent variable for binary M
             ii++;
           }
           MU_uMYprop(0) *= precM;
@@ -682,8 +682,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           
           MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
-            MU_uMYprop(0) += (Mz[ii]-(MOffset+mBM.f(ii)));
-            MU_uMYprop(1) += (Yz[ii]-(YOffset+yBM.f(ii)));
+            MU_uMYprop(0) += (Mz[ii]-(mBM.f(ii))); // use latent variable for binary M
+            MU_uMYprop(1) += (Yz[ii]-(yBM.f(ii))); // use latent variable for binary M
             ii++;
           }
           MU_uMYprop(0) *= precM;
