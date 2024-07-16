@@ -153,11 +153,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
   Rcpp::NumericMatrix matMinfo(_matMinfo);
   Rcpp::NumericVector Msdraw(nkeeptrain);
   Rcpp::NumericVector Ysdraw(nkeeptrain);
-  Rcpp::NumericVector rhoYMudraw(nkeeptrain);
-  Rcpp::NumericVector sdMudraw(nkeeptrain);
-  Rcpp::NumericVector sdYudraw(nkeeptrain);
   Rcpp::NumericVector muMudraw(nkeeptrain);
   Rcpp::NumericVector muYudraw(nkeeptrain);
+  Rcpp::NumericVector sdMudraw(nkeeptrain);
+  Rcpp::NumericVector sdYudraw(nkeeptrain);
+  Rcpp::NumericVector rhoYMudraw(nkeeptrain);
   Rcpp::NumericMatrix Mdraw(nkeeptrain,n);
   Rcpp::NumericMatrix Ydraw(nkeeptrain,n);
   Rcpp::NumericMatrix uMdraw(nkeeptrain,J);
@@ -244,6 +244,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
                        unsigned int n2,
                        double* Msdraw,
                        double* Ysdraw,
+                       double* muMudraw,
+                       double* muYudraw,
                        double* sdMudraw,
                        double* sdYudraw,
                        double* _mdraw,
