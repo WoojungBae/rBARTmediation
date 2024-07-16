@@ -244,14 +244,15 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
                        unsigned int n2,
                        double* Msdraw,
                        double* Ysdraw,
-                       double muMudraw,
-                       double muYudraw,
-                       double sdMudraw,
-                       double sdYudraw,
-                       double rhoYMudraw,
-                       double* _mdraw,
-                       double* _ydraw,
-                       double* _udraw) {
+                       double* _Mdraw,
+                       double* _Ydraw,
+                       double* _uMdraw,
+                       double* _uYdraw,
+                       double* _muMudraw,
+                       double* _muYudraw,
+                       double* _sdMudraw,
+                       double* _sdYudraw,
+                       double* _rhoYMudraw) {
     //--------------------------------------------------
     //return data structures (using C++)
     size_t nkeeptrain=numdraw/thin, nkeeptreedraws=numdraw/thin;
@@ -260,11 +261,22 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     std::vector<double*> uMdraw(nkeeptrain);
     std::vector<double*> uYdraw(nkeeptrain);
     
+    std::vector<double*> muMudraw(nkeeptrain);
+    std::vector<double*> muYudraw(nkeeptrain);
+    std::vector<double*> sdMudraw(nkeeptrain);
+    std::vector<double*> sdYudraw(nkeeptrain);
+    std::vector<double*> rhoYMudraw(nkeeptrain);
+    
     for(size_t it=0; it<nkeeptrain; ++it) {
-      Mdraw[it]=&_mdraw[it*n];
-      Ydraw[it]=&_ydraw[it*n];
-      uMdraw[it]=&_udraw[it*J];
-      uYdraw[it]=&_udraw[it*J];
+      Mdraw[it]=&_Mdraw[it*n];
+      Ydraw[it]=&_Ydraw[it*n];
+      uMdraw[it]=&_uMdraw[it*J];
+      uYdraw[it]=&_uYdraw[it*J];
+      muMudraw[it]=&_muMudraw[it*J];
+      muYudraw[it]=&_muYudraw[it*J];
+      sdMudraw[it]=&_sdMudraw[it*J];
+      sdYudraw[it]=&_sdYudraw[it*J];
+      rhoYMudraw[it]=&_rhoYMudraw[it*J];
     }
     
     //matrix to return dart posteriors (counts and probs)
@@ -523,13 +535,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       size_t n_j, ii;
       double precM=pow(iMsigest, -2.), precY=pow(iYsigest, -2.);
 
-      double *uYMlik_j_prop = new double[J];
-      uYMlik_j_prop[0] = 
-        diwish(SIG_uMYnew, nu_uMY, SIG_uMYJ, true) + 
-        as_scalar(dmvnorm(MU_uMYnew.t(), MU_uMYJ, SIG_uMYnew/lambda_uMY, true));
-      for(size_t j=1; j<J; j++) {
-        uYMlik_j_prop[j] = uYMlik_j_prop[0];
-      }
+      // double *uYMlik_j_prop = new double[J];
+      // uYMlik_j_prop[0] = 
+      //   diwish(SIG_uMYnew, nu_uMY, SIG_uMYJ, true) + 
+      //   as_scalar(dmvnorm(MU_uMYnew.t(), MU_uMYJ, SIG_uMYnew/lambda_uMY, true));
+      // for(size_t j=1; j<J; j++) {
+      //   uYMlik_j_prop[j] = uYMlik_j_prop[0];
+      // }
       
       ii=0;
       if (typeM==1 && typeY==1) {
@@ -552,89 +564,161 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           MU_uMYprop(0) *= precM;
           MU_uMYprop(1) *= precY;
           MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
-
+          
           arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
           uM[j] = uMYprop(0);
           uY[j] = uMYprop(1);
         }
       } else if (typeM==2 && typeY==1) {
-        // --------------------------------------------------
-        // --------------------------------------------------
+        //--------------------------------------------------
+        //--------------------------------------------------
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          // Proposal
-          arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop(0,0) += n_j*precM;
+          invSIG_uMYprop(1,1) += n_j*precY;
+          SIG_uMYprop = inv(invSIG_uMYprop);
           
-          // uYMlik_j_prop
-          uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+          MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
-            uYMlik_j_prop[j] +=
-              R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
-              R::dnorm(iY[ii], (YOffset + yBM.f(ii) + uMYprop(1)), iYsigest, true);
+            MU_uMYprop(0) += (Mz[ii]-(MOffset+mBM.f(ii)));
+            MU_uMYprop(1) += (iY[ii]-(YOffset+yBM.f(ii)));
             ii++;
           }
+          MU_uMYprop(0) *= precM;
+          MU_uMYprop(1) *= precY;
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
           
-          // acceptance ratio
-          ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-          if (ratio > gen.uniform()){
-            uYMlik_j[j] = uYMlik_j_prop[j];
-            uM[j] = uMYprop(0);
-            uY[j] = uMYprop(1);
-          }
+          arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
+          uM[j] = uMYprop(0);
+          uY[j] = uMYprop(1);
         }
+        // // --------------------------------------------------
+        // // --------------------------------------------------
+        // for(size_t j=0; j<J; j++) {
+        //   n_j = n_j_vec[j];
+        //   
+        //   // Proposal
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   
+        //   // uYMlik_j_prop
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   for(size_t itmp=0; itmp<n_j; itmp++) {
+        //     uYMlik_j_prop[j] +=
+        //       R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
+        //       R::dnorm(iY[ii], (YOffset + yBM.f(ii) + uMYprop(1)), iYsigest, true);
+        //     ii++;
+        //   }
+        //   
+        //   // acceptance ratio
+        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   if (ratio > gen.uniform()){
+        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uM[j] = uMYprop(0);
+        //     uY[j] = uMYprop(1);
+        //   }
+        // }
       } else if (typeM==1 && typeY==2) {
-        // --------------------------------------------------
-        // --------------------------------------------------
+        //--------------------------------------------------
+        //--------------------------------------------------
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          // Proposal
-          arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop(0,0) += n_j*precM;
+          invSIG_uMYprop(1,1) += n_j*precY;
+          SIG_uMYprop = inv(invSIG_uMYprop);
           
-          // uYMlik_j_prop
-          uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+          MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
-            uYMlik_j_prop[j] +=
-              R::dnorm(iM[ii], (MOffset + mBM.f(ii) + uMYprop(0)), iMsigest, true) +
-              R::pnorm(Ysign[ii] * (YOffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
+            MU_uMYprop(0) += (iM[ii]-(MOffset+mBM.f(ii)));
+            MU_uMYprop(1) += (Yz[ii]-(YOffset+yBM.f(ii)));
             ii++;
           }
+          MU_uMYprop(0) *= precM;
+          MU_uMYprop(1) *= precY;
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
           
-          // acceptance ratio
-          ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-          if (ratio > gen.uniform()){
-            uYMlik_j[j] = uYMlik_j_prop[j];
-            uM[j] = uMYprop(0);
-            uY[j] = uMYprop(1);
-          }
+          arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
+          uM[j] = uMYprop(0);
+          uY[j] = uMYprop(1);
         }
+        // // --------------------------------------------------
+        // // --------------------------------------------------
+        // for(size_t j=0; j<J; j++) {
+        //   n_j = n_j_vec[j];
+        //   
+        //   // Proposal
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   
+        //   // uYMlik_j_prop
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   for(size_t itmp=0; itmp<n_j; itmp++) {
+        //     uYMlik_j_prop[j] +=
+        //       R::dnorm(iM[ii], (MOffset + mBM.f(ii) + uMYprop(0)), iMsigest, true) +
+        //       R::pnorm(Ysign[ii] * (YOffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
+        //     ii++;
+        //   }
+        //   
+        //   // acceptance ratio
+        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   if (ratio > gen.uniform()){
+        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uM[j] = uMYprop(0);
+        //     uY[j] = uMYprop(1);
+        //   }
+        // }
       } else if (typeM==2 && typeY==2) {
-        // --------------------------------------------------
-        // --------------------------------------------------
+        //--------------------------------------------------
+        //--------------------------------------------------
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          // Proposal
-          arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop(0,0) += n_j*precM;
+          invSIG_uMYprop(1,1) += n_j*precY;
+          SIG_uMYprop = inv(invSIG_uMYprop);
           
-          // uYMlik_j_prop
-          uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+          MU_uMYprop = zero_vec_2;
           for(size_t itmp=0; itmp<n_j; itmp++) {
-            uYMlik_j_prop[j] +=
-              R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
-              R::pnorm(Ysign[ii] * (YOffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
+            MU_uMYprop(0) += (Mz[ii]-(MOffset+mBM.f(ii)));
+            MU_uMYprop(1) += (Yz[ii]-(YOffset+yBM.f(ii)));
             ii++;
           }
+          MU_uMYprop(0) *= precM;
+          MU_uMYprop(1) *= precY;
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
           
-          // acceptance ratio
-          ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-          if (ratio > gen.uniform()){
-            uYMlik_j[j] = uYMlik_j_prop[j];
-            uM[j] = uMYprop(0);
-            uY[j] = uMYprop(1);
-          }
+          arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
+          uM[j] = uMYprop(0);
+          uY[j] = uMYprop(1);
         }
+        // // --------------------------------------------------
+        // // --------------------------------------------------
+        // for(size_t j=0; j<J; j++) {
+        //   n_j = n_j_vec[j];
+        //   
+        //   // Proposal
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   
+        //   // uYMlik_j_prop
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   for(size_t itmp=0; itmp<n_j; itmp++) {
+        //     uYMlik_j_prop[j] +=
+        //       R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
+        //       R::pnorm(Ysign[ii] * (YOffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
+        //     ii++;
+        //   }
+        //   
+        //   // acceptance ratio
+        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   if (ratio > gen.uniform()){
+        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uM[j] = uMYprop(0);
+        //     uY[j] = uMYprop(1);
+        //   }
+        // }
       }
 
       //--------------------------------------------------
