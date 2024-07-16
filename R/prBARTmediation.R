@@ -43,12 +43,18 @@ prBARTmediation = function(object,  # object from rBARTmediation
   # --------------------------------------------------
   # --------------------------------------------------
   # --------------------------------------------------
-  uMYreff = sapply(1:n_MCMC, function(d)
-    .Call("crmvnorm", J, c(object$mu.uM[d], object$mu.uY[d]),
-          rbind(c(object$sd.uM[d]^{2},
-                  object$cor.uYM[d] * object$sd.uM[d] * object$sd.uY[d]),
-                c(object$cor.uYM[d] * object$sd.uM[d] * object$sd.uY[d],
-                  object$sd.uY[d]^{2}))), simplify = "array")
+  mu.uM = as.numeric(object$mu.uM)
+  mu.uY = as.numeric(object$mu.uY)
+  sd.uM = as.numeric(object$sd.uM)
+  sd.uY = as.numeric(object$sd.uY)
+  cor.uYM = as.numeric(object$cor.uYM)
+  sig.uMM = sd.uM^{2}
+  sig.uYY = sd.uY^{2}
+  sig.uMY = cor.uYM * sd.uM * sd.uY
+  MU.uMY = cbind(mu.uM , mu.uY)
+  SIG.uMY = lapply(1:n_MCMC, function(d) 
+    rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
+  uMYreff = sapply(1:n_MCMC, function(d) .Call("crmvnorm", J, MU.uMY[d,], SIG.uMY[[d]]), simplify = "array")
   
   # --------------------------------------------------
   # --------------------------------------------------
