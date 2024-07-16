@@ -24,14 +24,14 @@
 #ifndef NoRcpp
 
 RcppExport SEXP crmvnorm(SEXP n, SEXP mean, SEXP vcov) {
-  BEGIN_RCPP
-  Rcpp::RObject rcpp_result_gen;
-  Rcpp::RNGScope rcpp_rngScope_gen;
+  // BEGIN_RCPP
+  // Rcpp::RObject rcpp_result_gen;
+  // Rcpp::RNGScope rcpp_rngScope_gen;
   Rcpp::traits::input_parameter< arma::uword >::type N(n);
   Rcpp::traits::input_parameter< arma::vec >::type MU(mean);
   Rcpp::traits::input_parameter< arma::mat >::type SIG(vcov);
   return Rcpp::wrap(rmvnorm(N, MU, SIG));
-  END_RCPP
+  // END_RCPP
 }
 
 #endif

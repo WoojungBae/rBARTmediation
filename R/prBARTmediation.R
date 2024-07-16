@@ -43,11 +43,11 @@ prBARTmediation = function(object,  # object from rBARTmediation
   # --------------------------------------------------
   # --------------------------------------------------
   # --------------------------------------------------
-  uMYreff = sapply(1:n_MCMC, function(d) 
-    .Call("crmvnorm", J, c(object$mu.uM[d], object$mu.uY[d]), 
-          rbind(c(object$sd.uM[d]^{2}, 
+  uMYreff = sapply(1:n_MCMC, function(d)
+    .Call("crmvnorm", J, c(object$mu.uM[d], object$mu.uY[d]),
+          rbind(c(object$sd.uM[d]^{2},
                   object$cor.uYM[d] * object$sd.uM[d] * object$sd.uY[d]),
-                c(object$cor.uYM[d] * object$sd.uM[d] * object$sd.uY[d], 
+                c(object$cor.uYM[d] * object$sd.uM[d] * object$sd.uY[d],
                   object$sd.uY[d]^{2}))), simplify = "array")
   
   # --------------------------------------------------
@@ -57,10 +57,11 @@ prBARTmediation = function(object,  # object from rBARTmediation
   M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
   Msigest = object$iMsigest
+  uMreff = object$uMdraw
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = uMYreff[j,1,] # rnorm(n_MCMC, mu.uM, sd.uM) # uMreff[,j] # mu.uM # sd.uM
+      uMreff_tmp = uMYreff[j,1,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sd.uM) # mu.uM # sd.uM
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
@@ -84,6 +85,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp3 = strsplit(treetmp1, ",")[[1]]
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
   Ysigest = object$iYsigest
+  uYreff = object$uYdraw
   
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m0.test = matrix(nrow=n_MCMC,ncol=N)
@@ -103,7 +105,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = uMYreff[j,2,d] # rnorm(1, mu.uY[d], sd.uY[d]) # uYreff[d,j] # mu.uY[d] # sd.uY[d]
+        uYreff_tmp = uMYreff[j,2,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sd.uY[d]) # mu.uY[d] # sd.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp

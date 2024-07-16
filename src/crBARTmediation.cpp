@@ -712,11 +712,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     ret["Ydraw"]=Ydraw;
     ret["uMdraw"]=uMdraw;
     ret["uYdraw"]=uYdraw;
-    ret["cor.uYM"]=rhoYMudraw;
-    ret["sd.uM"]=sdMudraw;
-    ret["sd.uY"]=sdYudraw;
     ret["mu.uM"]=muMudraw;
     ret["mu.uY"]=muYudraw;
+    ret["sd.uM"]=sdMudraw;
+    ret["sd.uY"]=sdYudraw;
+    ret["cor.uYM"]=rhoYMudraw;
     ret["matXvarcount"]=matXvarcnt;
     ret["matMvarcount"]=matMvarcnt;
     ret["matXvarprob"]=matXvarprb;
