@@ -382,23 +382,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::vec MU_uMY0 = zero_vec_2;
     arma::mat SIG_uMY0 = eye_mat_22;
     arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
-    // arma::mat SIG_uMY0 = {{B_uM, 0.}, {0., B_uY}};
-    // arma::mat invSIG_uMY0 = {{1/B_uM, 0.}, {0., 1/B_uY}}; // inv(SIG_uMY0);
     
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
     
-    arma::vec MU_uMYJ = MU_uMY0;
-    arma::mat SIG_uMYJ = eye_mat_22;
-    arma::mat invSIG_uMYJ = eye_mat_22; // inv(SIG_uMYJ);
-    
-    arma::vec MU_uMYnew = MU_uMY0;
-    arma::mat SIG_uMYnew = eye_mat_22;
-    arma::mat invSIG_uMYnew = eye_mat_22; // inv(SIG_uMYnew);
-    
-    arma::vec MU_uMYprop = MU_uMY0;
-    arma::mat SIG_uMYprop = eye_mat_22;
-    arma::mat invSIG_uMYprop = eye_mat_22; // inv(SIG_uMYprop);
+    arma::vec MU_uMYJ;
+    arma::mat SIG_uMYJ;
+    arma::mat invSIG_uMYJ; // inv(SIG_uMYJ);
+    arma::vec MU_uMYnew;
+    arma::mat SIG_uMYnew;
+    arma::mat invSIG_uMYnew; // inv(SIG_uMYnew);
+    arma::vec MU_uMYprop;
+    arma::mat SIG_uMYprop;
+    arma::mat invSIG_uMYprop; // inv(SIG_uMYprop);
     
     // for(size_t j=0; j<J; j++) {
     //   arma::vec tmp = arma::mvnrnd(MU_uMY0, SIG_uMY0/lambda_uMY0); // 
@@ -468,14 +464,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       if(typeM1){
         double Mrss = 0.;
         for(size_t i=0;i<n;i++) {
-          Mrss += pow((iM[i]-(MOffset+mBM.f(i))), 2.);
+          Mrss += pow((iM[i]-(MOffset+mBM.f(i))), 2.); // +uM[u_index[i]]
         }
         iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
       }
       if(typeY1){
         double Yrss = 0.;
         for(size_t i=0;i<n;i++) {
-          Yrss += pow((iY[i]-(YOffset+yBM.f(i))), 2.);
+          Yrss += pow((iY[i]-(YOffset+yBM.f(i))), 2.); // +uY[u_index[i]]
         }
         iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
       }
@@ -483,14 +479,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (MOffset); // +uM[u_index[i]]
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // +uM[u_index[i]]
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset), 1., genM);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., genM);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (YOffset); // +uY[u_index[i]]
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // +uY[u_index[i]]
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset), 1., genY);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., genY);
         }
       }
       
