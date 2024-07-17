@@ -164,7 +164,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
   Rcpp::NumericMatrix uYdraw(nkeeptrain,J);
   
   //random number generation
-  arn gen;
+  arn genM;
+  arn genY;
   
   //heterbart mBM(numtree);
   //heterbart yBM(numtree);
@@ -242,17 +243,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
                        // additional parameters needed to call from C++
                        unsigned int n1,
                        unsigned int n2,
+                       unsigned int n3,
+                       unsigned int n4,
                        double* Msdraw,
                        double* Ysdraw,
                        double* _Mdraw,
                        double* _Ydraw,
                        double* _uMdraw,
-                       double* _uYdraw,
-                       double* _muMudraw,
-                       double* _muYudraw,
-                       double* _sdMudraw,
-                       double* _sdYudraw,
-                       double* _rhoYMudraw) {
+                       double* _uYdraw) {
     //--------------------------------------------------
     //return data structures (using C++)
     size_t nkeeptrain=numdraw/thin, nkeeptreedraws=numdraw/thin;
@@ -272,11 +270,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       Ydraw[it]=&_Ydraw[it*n];
       uMdraw[it]=&_uMdraw[it*J];
       uYdraw[it]=&_uYdraw[it*J];
-      muMudraw[it]=&_muMudraw[it*J];
-      muYudraw[it]=&_muYudraw[it*J];
-      sdMudraw[it]=&_sdMudraw[it*J];
-      sdYudraw[it]=&_sdYudraw[it*J];
-      rhoYMudraw[it]=&_rhoYMudraw[it*J];
     }
     
     //matrix to return dart posteriors (counts and probs)
@@ -286,7 +279,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     std::vector< std::vector<double> > matMvarprb;
     
     //random number generation
-    arn gen(n1, n2);
+    arn genM(n1, n2);
+    arn genY(n3, n4);
     
     //heterbart mBM(numtree);
     //heterbart yBM(numtree);
@@ -373,8 +367,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     double mu_uY = 0., sd_uY = B_uY * 0.5; // , tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
     if(uM[0]!=uM[0] || uY[0]!=uY[0]) {
       for(size_t j=0; j<J; j++) {
-        uM[j]=sd_uM * gen.normal() + mu_uM;
-        uY[j]=sd_uY * gen.normal() + mu_uY;
+        uM[j]=sd_uM * genM.normal() + mu_uM;
+        uY[j]=sd_uY * genY.normal() + mu_uY;
       }
     }
     
@@ -383,13 +377,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
     double nu_uMY0 = 4; // > p + 1 (p=2)
-    double lambda_uMY0 = 0.1;
+    double lambda_uMY0 = 0.5;
     
     arma::vec MU_uMY0 = zero_vec_2;
-    // arma::mat SIG_uMY0 = eye_mat_22;
-    // arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
-    arma::mat SIG_uMY0 = {{B_uM, 0.}, {0., B_uY}};
-    arma::mat invSIG_uMY0 = {{1/B_uM, 0.}, {0., 1/B_uY}}; // inv(SIG_uMY0);
+    arma::mat SIG_uMY0 = eye_mat_22;
+    arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
+    // arma::mat SIG_uMY0 = {{B_uM, 0.}, {0., B_uY}};
+    // arma::mat invSIG_uMY0 = {{1/B_uM, 0.}, {0., 1/B_uY}}; // inv(SIG_uMY0);
     
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
@@ -434,11 +428,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     MU_uMYJ = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
     MU_uMYnew = mvnrnd(MU_uMYJ, SIG_uMYnew/lambda_uMY);
     
-    double ratio;
-    double *uYMlik_j = new double[J];
-    for(size_t j=0; j<J; j++) {
-      uYMlik_j[j] = R_NegInf;
-    }
+    // double ratio;
+    // double *uYMlik_j = new double[J];
+    // for(size_t j=0; j<J; j++) {
+    //   uYMlik_j[j] = R_NegInf;
+    // }
     
     // set up BART model
     mBM.setprior(alpha,mybeta,Mtau);
@@ -470,44 +464,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     xinfo& matMxi = yBM.getxinfo();
     
     for(size_t postrep=0;postrep<total;postrep++) {
-      //--------------------------------------------------
-      if(postrep==(burn/2)&&dart) {
-        mBM.startdart();
-        yBM.startdart();
-      }
-      mBM.draw(iMsigest,gen);
-      yBM.draw(iYsigest,gen);
-      
-      //--------------------------------------------------
-      if(typeM1){
-        double Mrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.);
-        }
-        iMsigest = sqrt((nu*Mlambda + Mrss)/gen.chi_square(df));
-      }
-      if(typeY1){
-        double Yrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.);
-        }
-        iYsigest = sqrt((nu*Ylambda + Yrss)/gen.chi_square(df));
-      }
-      
-      //--------------------------------------------------
-      for(size_t i=0;i<n;i++) {
-        if(typeM==1){
-          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // +uM[u_index[i]]
-        } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., gen);
-        }
-        if(typeY==1){
-          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // +uY[u_index[i]]
-        } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., gen);
-        }
-      }
-      
       //--------------------------------------------------
       // draw SIG_uMYJ
       arma::vec uMY = zero_vec_2;
@@ -613,7 +569,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   
         //   // acceptance ratio
         //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-        //   if (ratio > gen.uniform()){
+        //   if (ratio > genM.uniform()){
         //     uYMlik_j[j] = uYMlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
@@ -663,7 +619,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   
         //   // acceptance ratio
         //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-        //   if (ratio > gen.uniform()){
+        //   if (ratio > genM.uniform()){
         //     uYMlik_j[j] = uYMlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
@@ -713,13 +669,51 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   
         //   // acceptance ratio
         //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
-        //   if (ratio > gen.uniform()){
+        //   if (ratio > genM.uniform()){
         //     uYMlik_j[j] = uYMlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
         //   }
         // }
       }
+      
+      //--------------------------------------------------
+      if(typeM1){
+        double Mrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.);
+        }
+        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
+      }
+      if(typeY1){
+        double Yrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.);
+        }
+        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
+      }
+      
+      //--------------------------------------------------
+      for(size_t i=0;i<n;i++) {
+        if(typeM==1){
+          Mz[i] = iM[i] - (MOffset+uM[u_index[i]]); // +uM[u_index[i]]
+        } else if(typeM==2){
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(MOffset+uM[u_index[i]]), 1., genM);
+        }
+        if(typeY==1){
+          Yz[i] = iY[i] - (YOffset+uY[u_index[i]]); // +uY[u_index[i]]
+        } else if(typeY==2){
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(YOffset+uY[u_index[i]]), 1., genY);
+        }
+      }
+      
+      //--------------------------------------------------
+      if(postrep==(burn/2)&&dart) {
+        mBM.startdart();
+        yBM.startdart();
+      }
+      mBM.draw(iMsigest,genM);
+      yBM.draw(iYsigest,genY);
 
       //--------------------------------------------------
       if(postrep>=burn) {
