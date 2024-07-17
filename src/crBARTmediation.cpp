@@ -525,14 +525,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       size_t n_j, ii;
       double precM=pow(iMsigest, -2.), precY=pow(iYsigest, -2.);
 
-      // double *uYMlik_j_prop = new double[J];
-      // uYMlik_j_prop[0] = 
-      //   diwish(SIG_uMYnew, nu_uMY, SIG_uMYJ, true) + 
-      //   as_scalar(dmvnorm(MU_uMYnew.t(), MU_uMYJ, SIG_uMYnew/lambda_uMY, true));
-      // for(size_t j=1; j<J; j++) {
-      //   uYMlik_j_prop[j] = uYMlik_j_prop[0];
-      // }
-      
       ii=0;
       if (typeM==1 && typeY==1) {
         //--------------------------------------------------
@@ -728,11 +720,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             UMDRAW(trcnt,j) = uM[j];
             UYDRAW(trcnt,j) = uY[j];
           }
-          muMudraw[trcnt] = MU_uMYJ(0);
-          muYudraw[trcnt] = MU_uMYJ(1);
-          sdMudraw[trcnt] = sqrt(SIG_uMYJ(0,0));
-          sdYudraw[trcnt] = sqrt(SIG_uMYJ(1,1));
-          rhoYMudraw[trcnt] = SIG_uMYJ(0,1)/sqrt(SIG_uMYJ(0,0)*SIG_uMYJ(1,1));
+          muMudraw[trcnt] = MU_uMYnew(0);
+          muYudraw[trcnt] = MU_uMYnew(1);
+          sdMudraw[trcnt] = sqrt(SIG_uMYnew(0,0));
+          sdYudraw[trcnt] = sqrt(SIG_uMYnew(1,1));
+          rhoYMudraw[trcnt] = SIG_uMYnew(0,1)/sqrt(SIG_uMYnew(0,0)*SIG_uMYnew(1,1));
 
           trcnt+=1;
 
