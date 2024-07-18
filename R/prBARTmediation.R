@@ -40,9 +40,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
     stop(paste0('The number of columns in matX.test must be equal to ', pm))
   }
   
-  # # --------------------------------------------------
-  # # --------------------------------------------------
-  # # --------------------------------------------------
+  # --------------------------------------------------
+  # --------------------------------------------------
+  # --------------------------------------------------
   # mu.uM = as.numeric(object$mu.uM)
   # mu.uY = as.numeric(object$mu.uY)
   # sd.uM = as.numeric(object$sd.uM)
