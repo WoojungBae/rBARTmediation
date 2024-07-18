@@ -386,12 +386,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
     
-    arma::vec MU_uMYJ;
-    arma::mat SIG_uMYJ;
-    arma::mat invSIG_uMYJ; // inv(SIG_uMYJ);
-    arma::vec MU_uMYnew;
-    arma::mat SIG_uMYnew;
-    arma::mat invSIG_uMYnew; // inv(SIG_uMYnew);
+    arma::vec MU_uMYtmp;
+    arma::mat SIG_uMYtmp;
+    arma::mat invSIG_uMYtmp; // inv(SIG_uMYtmp);
+    arma::vec MU_uMYstr;
+    arma::mat SIG_uMYstr;
+    arma::mat invSIG_uMYstr; // inv(SIG_uMYstr);
     arma::vec MU_uMYprop;
     arma::mat SIG_uMYprop;
     arma::mat invSIG_uMYprop; // inv(SIG_uMYprop);
@@ -403,7 +403,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     // }
     
     //--------------------------------------------------
-    // draw SIG_uMYJ
+    // draw SIG_uMYtmp
     arma::vec uMY = zero_vec_2;
     for(size_t j=0; j<J; j++) {
       uMY(0) += uM[j];
@@ -418,17 +418,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
     }
     uMYtuMY(1,0) = uMYtuMY(0,1);
-    SIG_uMYJ = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
-    SIG_uMYnew = iwishrnd(SIG_uMYJ, nu_uMY);
-    invSIG_uMYnew = inv(SIG_uMYnew);
-    MU_uMYJ = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
-    MU_uMYnew = mvnrnd(MU_uMYJ, SIG_uMYnew/lambda_uMY);
-    
-    // double ratio;
-    // double *uYMlik_j = new double[J];
-    // for(size_t j=0; j<J; j++) {
-    //   uYMlik_j[j] = R_NegInf;
-    // }
+    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+    SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
+    invSIG_uMYstr = inv(SIG_uMYstr);
+    MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+    MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
     
     // set up BART model
     mBM.setprior(alpha,mybeta,Mtau);
@@ -499,7 +493,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       yBM.draw(iYsigest,genY);
       
       //--------------------------------------------------
-      // draw SIG_uMYJ
+      // draw SIG_uMYtmp
       arma::vec uMY = zero_vec_2;
       for(size_t j=0; j<J; j++) {
         uMY(0) += uM[j];
@@ -514,11 +508,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
       }
       uMYtuMY(1,0) = uMYtuMY(0,1);
-      SIG_uMYJ = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
-      SIG_uMYnew = iwishrnd(SIG_uMYJ, nu_uMY);
-      invSIG_uMYnew = inv(SIG_uMYnew);
-      MU_uMYJ = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
-      MU_uMYnew = mvnrnd(MU_uMYJ, SIG_uMYnew/lambda_uMY);
+      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+      SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
+      invSIG_uMYstr = inv(SIG_uMYstr);
+      MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+      MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
       
       //--------------------------------------------------
       // draw uM, uY
@@ -532,7 +526,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
 
-          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop = invSIG_uMYstr;
           invSIG_uMYprop(0,0) += n_j*precM;
           invSIG_uMYprop(1,1) += n_j*precY;
           SIG_uMYprop = inv(invSIG_uMYprop);
@@ -545,7 +539,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           MU_uMYprop(0) *= precM;
           MU_uMYprop(1) *= precY;
-          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYstr * MU_uMYstr + MU_uMYprop);
           
           arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
           uM[j] = uMYprop(0);
@@ -557,7 +551,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop = invSIG_uMYstr;
           invSIG_uMYprop(0,0) += n_j*precM;
           invSIG_uMYprop(1,1) += n_j*precY;
           SIG_uMYprop = inv(invSIG_uMYprop);
@@ -570,7 +564,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           MU_uMYprop(0) *= precM;
           MU_uMYprop(1) *= precY;
-          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYstr * MU_uMYstr + MU_uMYprop);
           
           arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
           uM[j] = uMYprop(0);
@@ -582,10 +576,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   n_j = n_j_vec[j];
         //   
         //   // Proposal
-        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
         //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
         //     uYMlik_j_prop[j] +=
         //       R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
@@ -607,7 +601,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop = invSIG_uMYstr;
           invSIG_uMYprop(0,0) += n_j*precM;
           invSIG_uMYprop(1,1) += n_j*precY;
           SIG_uMYprop = inv(invSIG_uMYprop);
@@ -620,7 +614,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           MU_uMYprop(0) *= precM;
           MU_uMYprop(1) *= precY;
-          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYstr * MU_uMYstr + MU_uMYprop);
           
           arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
           uM[j] = uMYprop(0);
@@ -632,10 +626,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   n_j = n_j_vec[j];
         //   
         //   // Proposal
-        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
         //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
         //     uYMlik_j_prop[j] +=
         //       R::dnorm(iM[ii], (MOffset + mBM.f(ii) + uMYprop(0)), iMsigest, true) +
@@ -657,7 +651,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t j=0; j<J; j++) {
           n_j = n_j_vec[j];
           
-          invSIG_uMYprop = invSIG_uMYnew;
+          invSIG_uMYprop = invSIG_uMYstr;
           invSIG_uMYprop(0,0) += n_j*precM;
           invSIG_uMYprop(1,1) += n_j*precY;
           SIG_uMYprop = inv(invSIG_uMYprop);
@@ -670,7 +664,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           MU_uMYprop(0) *= precM;
           MU_uMYprop(1) *= precY;
-          MU_uMYprop = SIG_uMYprop * (invSIG_uMYnew * MU_uMYnew + MU_uMYprop);
+          MU_uMYprop = SIG_uMYprop * (invSIG_uMYstr * MU_uMYstr + MU_uMYprop);
           
           arma::vec uMYprop = arma::mvnrnd(MU_uMYprop, SIG_uMYprop);
           uM[j] = uMYprop(0);
@@ -682,10 +676,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   n_j = n_j_vec[j];
         //   
         //   // Proposal
-        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYnew, SIG_uMYnew);
+        //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
         //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYnew, SIG_uMYnew, true));
+        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
         //     uYMlik_j_prop[j] +=
         //       R::pnorm(Msign[ii] * (MOffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
@@ -720,11 +714,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
             UMDRAW(trcnt,j) = uM[j];
             UYDRAW(trcnt,j) = uY[j];
           }
-          muMudraw[trcnt] = MU_uMYnew(0);
-          muYudraw[trcnt] = MU_uMYnew(1);
-          sdMudraw[trcnt] = sqrt(SIG_uMYnew(0,0));
-          sdYudraw[trcnt] = sqrt(SIG_uMYnew(1,1));
-          rhoYMudraw[trcnt] = SIG_uMYnew(0,1)/sqrt(SIG_uMYnew(0,0)*SIG_uMYnew(1,1));
+          muMudraw[trcnt] = MU_uMYstr(0);
+          muYudraw[trcnt] = MU_uMYstr(1);
+          sdMudraw[trcnt] = sqrt(SIG_uMYstr(0,0));
+          sdYudraw[trcnt] = sqrt(SIG_uMYstr(1,1));
+          rhoYMudraw[trcnt] = SIG_uMYstr(0,1)/sqrt(SIG_uMYstr(0,0)*SIG_uMYstr(1,1));
 
           trcnt+=1;
 

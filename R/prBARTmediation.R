@@ -40,9 +40,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
     stop(paste0('The number of columns in matX.test must be equal to ', pm))
   }
   
-  # --------------------------------------------------
-  # --------------------------------------------------
-  # --------------------------------------------------
+  # # --------------------------------------------------
+  # # --------------------------------------------------
+  # # --------------------------------------------------
   # mu.uM = as.numeric(object$mu.uM)
   # mu.uY = as.numeric(object$mu.uY)
   # sd.uM = as.numeric(object$sd.uM)
@@ -55,18 +55,6 @@ prBARTmediation = function(object,  # object from rBARTmediation
   # SIG.uMY = lapply(1:n_MCMC, function(d)
   #   rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
   # uMYreff = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, MU.uMY[d,], SIG.uMY[[d]])), simplify = "array")
-  
-  # mu.uM = object$uMdraw
-  # mu.uY = object$uYdraw
-  # sd.uM = as.numeric(object$sd.uM)
-  # sd.uY = as.numeric(object$sd.uY)
-  # cor.uYM = as.numeric(object$cor.uYM)
-  # sig.uMM = sd.uM^{2}
-  # sig.uYY = sd.uY^{2}
-  # sig.uMY = cor.uYM * sd.uM * sd.uY
-  # SIG.uMY = lapply(1:n_MCMC, function(d) rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
-  # uMYreff = sapply(1:n_MCMC, function(d) sapply(1:J, function(j)
-  #   .Call("crmvnorm", 1, c(mu.uM[d, j], mu.uY[d, j]), SIG.uMY[[d]])), simplify = "array")
   
   # --------------------------------------------------
   # --------------------------------------------------
