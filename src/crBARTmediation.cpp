@@ -361,6 +361,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       }
     }
     
+    //--------------------------------------------------
     // double *uM = new double[J];
     // double *uY = new double[J];
     double mu_uM = 0., sd_uM = B_uM; // , sd_uM = B_uM * 0.5, tau_uM=pow(sd_uM, -2.), invB2M=pow(B_uM, -2.);
@@ -400,7 +401,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     //   uY[j] = tmp(1);
     // }
     
-    //--------------------------------------------------
     // draw SIG_uMYtmp
     arma::vec uMY = zero_vec_2;
     for(size_t j=0; j<J; j++) {
@@ -458,14 +458,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         for(size_t i=0;i<n;i++) {
           Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.); // +uM[u_index[i]]
         }
-        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df-pm));
+        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
       }
       if(typeY1){
         double Yrss = 0.;
         for(size_t i=0;i<n;i++) {
           Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.); // +uY[u_index[i]]
         }
-        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df-py));
+        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
       }
       
       //--------------------------------------------------

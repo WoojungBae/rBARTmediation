@@ -305,7 +305,7 @@ RcppExport SEXP crBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
       if(type1sigest) {
         double rss=0.;
         for(size_t i=0;i<n;i++) {
-          rss += pow((iY[i]-bm.f(i)-(Offset+u[u_index[i]])), 2.); 
+          rss += pow((iY[i]-(Offset+bm.f(i)+u[u_index[i]])), 2.); 
         }
         sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
         sdraw[postrep]=sigma;
