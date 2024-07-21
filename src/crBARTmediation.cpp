@@ -363,8 +363,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     // double *uM = new double[J];
     // double *uY = new double[J];
-    double mu_uM = 0., sd_uM = B_uM * 0.5; // , tau_uM=pow(sd_uM, -2.), invB2M=pow(B_uM, -2.);
-    double mu_uY = 0., sd_uY = B_uY * 0.5; // , tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
+    double mu_uM = 0., sd_uM = B_uM; // , sd_uM = B_uM * 0.5, tau_uM=pow(sd_uM, -2.), invB2M=pow(B_uM, -2.);
+    double mu_uY = 0., sd_uY = B_uY; // , sd_uY = B_uY * 0.5, tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
     if(uM[0]!=uM[0] || uY[0]!=uY[0]) {
       for(size_t j=0; j<J; j++) {
         uM[j]=sd_uM * genM.normal() + mu_uM;
@@ -376,16 +376,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_vec_2 = arma::zeros(2);
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
-    double nu_uMY0 = 4; // > p + 1 (p=2)
+    double nu_uMY0 = 4; // = p + 2 > p + 1 (p=2)
     double lambda_uMY0 = 0.5;
+    double nu_uMY = nu_uMY0 + J;
+    double lambda_uMY = lambda_uMY0 + J;
     
     arma::vec MU_uMY0 = zero_vec_2;
     arma::mat SIG_uMY0 = eye_mat_22;
     arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
-    
-    double nu_uMY = nu_uMY0 + J;
-    double lambda_uMY = lambda_uMY0 + J;
-    
     arma::vec MU_uMYtmp;
     arma::mat SIG_uMYtmp;
     arma::mat invSIG_uMYtmp; // inv(SIG_uMYtmp);
@@ -425,11 +423,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
     
     // set up BART model
-    mBM.setprior(alpha,mybeta,Mtau);
+    mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
     mBM.setdata(pm,n,imatX,Mz,matXnc);
     mBM.setdart(a,b,matXrho,aug,dart);
     
-    yBM.setprior(alpha,mybeta,Ytau);
+    yBM.setprior(1-(1-alpha)/2,mybeta/2,Ytau);
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
     
@@ -458,16 +456,16 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       if(typeM1){
         double Mrss = 0.;
         for(size_t i=0;i<n;i++) {
-          Mrss += pow((iM[i]-(MOffset+mBM.f(i))), 2.); // +uM[u_index[i]]
+          Mrss += pow((iM[i]-(MOffset+mBM.f(i)+uM[u_index[i]])), 2.); // +uM[u_index[i]]
         }
-        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
+        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df-pm));
       }
       if(typeY1){
         double Yrss = 0.;
         for(size_t i=0;i<n;i++) {
-          Yrss += pow((iY[i]-(YOffset+yBM.f(i))), 2.); // +uY[u_index[i]]
+          Yrss += pow((iY[i]-(YOffset+yBM.f(i)+uY[u_index[i]])), 2.); // +uY[u_index[i]]
         }
-        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
+        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df-py));
       }
       
       //--------------------------------------------------
@@ -494,14 +492,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       
       //--------------------------------------------------
       // draw SIG_uMYtmp
-      arma::vec uMY = zero_vec_2;
+      uMY = zero_vec_2;
       for(size_t j=0; j<J; j++) {
         uMY(0) += uM[j];
         uMY(1) += uY[j];
       }
       uMY /= J;
 
-      arma::mat uMYtuMY = zero_mat_22;
+      uMYtuMY = zero_mat_22;
       for(size_t j=0; j<J; j++) {
         uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
         uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
@@ -517,7 +515,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       // draw uM, uY
       size_t n_j, ii;
-      double precM=pow(iMsigest, -2.), precY=pow(iYsigest, -2.);
+      double precM = pow(iMsigest, -2.), precY = pow(iYsigest, -2.);
 
       ii=0;
       if (typeM==1 && typeY==1) {
