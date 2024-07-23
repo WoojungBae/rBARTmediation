@@ -378,7 +378,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
     double nu_uMY0 = 2; // = p > p - 1 (p=2)
-    double lambda_uMY0 = 1/n;
+    double lambda_uMY0 = 0.5;
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
     

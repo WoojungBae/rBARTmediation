@@ -69,11 +69,8 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
   
   n <- length(Y)
   X <- cbind(C, V)
-  matX <- as.data.frame(cbind(Z, X))
-  matM <- as.data.frame(cbind(M, Z, X))
-  
-  matX$Uindex = factor(Uindex)
-  matM$Uindex = factor(Uindex)
+  matX <- cbind(Z, X)
+  matM <- cbind(M, matX)
   
   if(length(Uindex)==0){
     stop("the random effects indices must be provided")
