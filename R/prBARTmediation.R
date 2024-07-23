@@ -22,6 +22,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
   # object = BARTfit
   # X.test = cbind(C, V)
   # Uindex = V0
+  X.test = data.frame(X.test)
+  X.test$Uindex = factor(Uindex)
+  
   # --------------------------------------------------
   mc.cores = 1
   
