@@ -155,8 +155,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
   Rcpp::NumericVector Ysdraw(nkeeptrain);
   Rcpp::NumericVector muMudraw(nkeeptrain);
   Rcpp::NumericVector muYudraw(nkeeptrain);
-  Rcpp::NumericVector sdMudraw(nkeeptrain);
-  Rcpp::NumericVector sdYudraw(nkeeptrain);
+  Rcpp::NumericVector sigMudraw(nkeeptrain);
+  Rcpp::NumericVector sigYudraw(nkeeptrain);
   Rcpp::NumericVector rhoYMudraw(nkeeptrain);
   Rcpp::NumericMatrix Mdraw(nkeeptrain,n);
   Rcpp::NumericMatrix Ydraw(nkeeptrain,n);
@@ -261,8 +261,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     std::vector<double*> muMudraw(nkeeptrain);
     std::vector<double*> muYudraw(nkeeptrain);
-    std::vector<double*> sdMudraw(nkeeptrain);
-    std::vector<double*> sdYudraw(nkeeptrain);
+    std::vector<double*> sigMudraw(nkeeptrain);
+    std::vector<double*> sigYudraw(nkeeptrain);
     std::vector<double*> rhoYMudraw(nkeeptrain);
     
     for(size_t it=0; it<nkeeptrain; ++it) {
@@ -383,8 +383,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     double lambda_uMY = lambda_uMY0 + J;
     
     arma::vec MU_uMY0 = zero_vec_2;
-    arma::mat SIG_uMY0 = eye_mat_22;
-    arma::mat invSIG_uMY0 = eye_mat_22; // inv(SIG_uMY0);
+    arma::mat SIG_uMY0 = {{B_uM,0},{0,B_uY}};
+    arma::mat invSIG_uMY0 = {{1/B_uM,0},{0,1/B_uY}}; // inv(SIG_uMY0);
     arma::vec MU_uMYtmp;
     arma::mat SIG_uMYtmp;
     arma::mat invSIG_uMYtmp; // inv(SIG_uMYtmp);
@@ -736,8 +736,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           }
           muMudraw[trcnt] = MU_uMYstr(0);
           muYudraw[trcnt] = MU_uMYstr(1);
-          sdMudraw[trcnt] = sqrt(SIG_uMYstr(0,0));
-          sdYudraw[trcnt] = sqrt(SIG_uMYstr(1,1));
+          sigMudraw[trcnt] = sqrt(SIG_uMYstr(0,0));
+          sigYudraw[trcnt] = sqrt(SIG_uMYstr(1,1));
           rhoYMudraw[trcnt] = SIG_uMYstr(0,1)/sqrt(SIG_uMYstr(0,0)*SIG_uMYstr(1,1));
 
           trcnt+=1;
@@ -797,9 +797,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     ret["uYdraw"]=uYdraw;
     ret["mu.uM"]=muMudraw;
     ret["mu.uY"]=muYudraw;
-    ret["sd.uM"]=sdMudraw;
-    ret["sd.uY"]=sdYudraw;
-    ret["cor.uYM"]=rhoYMudraw;
+    ret["sig.uM"]=sigMudraw;
+    ret["sig.uY"]=sigYudraw;
+    ret["rho.uYM"]=rhoYMudraw;
     ret["matXvarcount"]=matXvarcnt;
     ret["matMvarcount"]=matMvarcnt;
     ret["matXvarprob"]=matXvarprb;
