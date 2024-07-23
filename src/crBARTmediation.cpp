@@ -400,27 +400,38 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     //   uM[j] = tmp(0);
     //   uY[j] = tmp(1);
     // }
-    
-    // draw SIG_uMYtmp
-    arma::vec uMY = zero_vec_2;
-    for(size_t j=0; j<J; j++) {
-      uMY(0) += uM[j];
-      uMY(1) += uY[j];
-    }
-    uMY /= J;
+    //--------------------------------------------------
+    // draw MU_uMYstr & SIG_uMYstr
+    // arma::vec uMY = zero_vec_2;
+    // for(size_t j=0; j<J; j++) {
+    //   uMY(0) += uM[j];
+    //   uMY(1) += uY[j];
+    // }
+    // uMY /= J;
+    // arma::mat uMYtuMY = zero_mat_22;
+    // for(size_t j=0; j<J; j++) {
+    //   uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
+    //   uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
+    //   uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+    // }
+    // uMYtuMY(1,0) = uMYtuMY(0,1);
+    // SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+    // SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
+    // invSIG_uMYstr = inv(SIG_uMYstr);
+    // MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+    // MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
     
     arma::mat uMYtuMY = zero_mat_22;
     for(size_t j=0; j<J; j++) {
-      uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
-      uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
-      uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+      uMYtuMY(0,0) += pow(uM[j], 2.);
+      uMYtuMY(1,1) += pow(uY[j], 2.);
+      uMYtuMY(0,1) += (uM[j] * uY[j]);
     }
     uMYtuMY(1,0) = uMYtuMY(0,1);
-    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+    SIG_uMYtmp = SIG_uMY0 + uMYtuMY;
     SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
     invSIG_uMYstr = inv(SIG_uMYstr);
-    MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
-    MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
+    MU_uMYstr = zero_vec_2;
     
     // set up BART model
     mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
@@ -491,26 +502,37 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       yBM.draw(iYsigest,genY);
       
       //--------------------------------------------------
-      // draw SIG_uMYtmp
-      uMY = zero_vec_2;
-      for(size_t j=0; j<J; j++) {
-        uMY(0) += uM[j];
-        uMY(1) += uY[j];
-      }
-      uMY /= J;
-
+      // draw MU_uMYstr & SIG_uMYstr
+      // uMY = zero_vec_2;
+      // for(size_t j=0; j<J; j++) {
+      //   uMY(0) += uM[j];
+      //   uMY(1) += uY[j];
+      // }
+      // uMY /= J;
+      // uMYtuMY = zero_mat_22;
+      // for(size_t j=0; j<J; j++) {
+      //   uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
+      //   uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
+      //   uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+      // }
+      // uMYtuMY(1,0) = uMYtuMY(0,1);
+      // SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+      // SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
+      // invSIG_uMYstr = inv(SIG_uMYstr);
+      // MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+      // MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
+      
       uMYtuMY = zero_mat_22;
       for(size_t j=0; j<J; j++) {
-        uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
-        uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
-        uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+        uMYtuMY(0,0) += pow(uM[j], 2.);
+        uMYtuMY(1,1) += pow(uY[j], 2.);
+        uMYtuMY(0,1) += (uM[j] * uY[j]);
       }
       uMYtuMY(1,0) = uMYtuMY(0,1);
-      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+      SIG_uMYtmp = SIG_uMY0 + uMYtuMY;
       SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
       invSIG_uMYstr = inv(SIG_uMYstr);
-      MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
-      MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
+      MU_uMYstr = zero_vec_2;
       
       //--------------------------------------------------
       // draw uM, uY
