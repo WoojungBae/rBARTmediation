@@ -157,7 +157,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
   Rcpp::NumericVector muYudraw(nkeeptrain);
   Rcpp::NumericVector sigMudraw(nkeeptrain);
   Rcpp::NumericVector sigYudraw(nkeeptrain);
-  Rcpp::NumericVector rhoYMudraw(nkeeptrain);
+  Rcpp::NumericVector rhoMYudraw(nkeeptrain);
   Rcpp::NumericMatrix Mdraw(nkeeptrain,n);
   Rcpp::NumericMatrix Ydraw(nkeeptrain,n);
   Rcpp::NumericMatrix uMdraw(nkeeptrain,J);
@@ -263,7 +263,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     std::vector<double*> muYudraw(nkeeptrain);
     std::vector<double*> sigMudraw(nkeeptrain);
     std::vector<double*> sigYudraw(nkeeptrain);
-    std::vector<double*> rhoYMudraw(nkeeptrain);
+    std::vector<double*> rhoMYudraw(nkeeptrain);
     
     for(size_t it=0; it<nkeeptrain; ++it) {
       Mdraw[it]=&_Mdraw[it*n];
@@ -598,19 +598,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   // Proposal
         //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
-        //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
+        //   // uMYlik_j_prop
+        //   uMYlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
-        //     uYMlik_j_prop[j] +=
+        //     uMYlik_j_prop[j] +=
         //       R::pnorm(Msign[ii] * (Moffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
         //       R::dnorm(iY[ii], (Yoffset + yBM.f(ii) + uMYprop(1)), iYsigest, true);
         //     ii++;
         //   }
         //   
         //   // acceptance ratio
-        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   ratio = exp(uMYlik_j_prop[j]-uMYlik_j[j]);
         //   if (ratio > genM.uniform()){
-        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uMYlik_j[j] = uMYlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
         //   }
@@ -648,19 +648,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   // Proposal
         //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
-        //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
+        //   // uMYlik_j_prop
+        //   uMYlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
-        //     uYMlik_j_prop[j] +=
+        //     uMYlik_j_prop[j] +=
         //       R::dnorm(iM[ii], (Moffset + mBM.f(ii) + uMYprop(0)), iMsigest, true) +
         //       R::pnorm(Ysign[ii] * (Yoffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
         //     ii++;
         //   }
         //   
         //   // acceptance ratio
-        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   ratio = exp(uMYlik_j_prop[j]-uMYlik_j[j]);
         //   if (ratio > genM.uniform()){
-        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uMYlik_j[j] = uMYlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
         //   }
@@ -698,19 +698,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         //   // Proposal
         //   arma::vec uMYprop = arma::mvnrnd(MU_uMYstr, SIG_uMYstr);
         //   
-        //   // uYMlik_j_prop
-        //   uYMlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
+        //   // uMYlik_j_prop
+        //   uMYlik_j_prop[j] += as_scalar(dmvnorm(uMYprop.t(), MU_uMYstr, SIG_uMYstr, true));
         //   for(size_t itmp=0; itmp<n_j; itmp++) {
-        //     uYMlik_j_prop[j] +=
+        //     uMYlik_j_prop[j] +=
         //       R::pnorm(Msign[ii] * (Moffset + mBM.f(ii) + uMYprop(0)), 0., 1., true, true) +
         //       R::pnorm(Ysign[ii] * (Yoffset + yBM.f(ii) + uMYprop(1)), 0., 1., true, true);
         //     ii++;
         //   }
         //   
         //   // acceptance ratio
-        //   ratio = exp(uYMlik_j_prop[j]-uYMlik_j[j]);
+        //   ratio = exp(uMYlik_j_prop[j]-uMYlik_j[j]);
         //   if (ratio > genM.uniform()){
-        //     uYMlik_j[j] = uYMlik_j_prop[j];
+        //     uMYlik_j[j] = uMYlik_j_prop[j];
         //     uM[j] = uMYprop(0);
         //     uY[j] = uMYprop(1);
         //   }
@@ -738,7 +738,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           muYudraw[trcnt] = MU_uMYstr(1);
           sigMudraw[trcnt] = sqrt(SIG_uMYstr(0,0));
           sigYudraw[trcnt] = sqrt(SIG_uMYstr(1,1));
-          rhoYMudraw[trcnt] = SIG_uMYstr(0,1)/sqrt(SIG_uMYstr(0,0)*SIG_uMYstr(1,1));
+          rhoMYudraw[trcnt] = SIG_uMYstr(0,1)/sqrt(SIG_uMYstr(0,0)*SIG_uMYstr(1,1));
 
           trcnt+=1;
 
@@ -799,7 +799,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     ret["mu.uY"]=muYudraw;
     ret["sig.uM"]=sigMudraw;
     ret["sig.uY"]=sigYudraw;
-    ret["rho.uYM"]=rhoYMudraw;
+    ret["rho.uMY"]=rhoMYudraw;
     ret["matXvarcount"]=matXvarcnt;
     ret["matMvarcount"]=matMvarcnt;
     ret["matXvarprob"]=matXvarprb;

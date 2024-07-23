@@ -45,10 +45,10 @@ prBARTmediation = function(object,  # object from rBARTmediation
   mu.uY = unlist(object$mu.uY)
   sig.uM = unlist(object$sig.uM)
   sig.uY = unlist(object$sig.uY)
-  rho.uYM = unlist(object$rho.uYM)
+  rho.uMY = unlist(object$rho.uMY)
   sig.uMM = sig.uM^{2}
   sig.uYY = sig.uY^{2}
-  sig.uMY = rho.uYM * sig.uM * sig.uY
+  sig.uMY = rho.uMY * sig.uM * sig.uY
   
   MU.uMY = cbind(mu.uM , mu.uY)
   SIG.uMY = lapply(1:n_MCMC, function(d)
