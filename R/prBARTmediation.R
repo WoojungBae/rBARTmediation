@@ -41,13 +41,13 @@ prBARTmediation = function(object,  # object from rBARTmediation
   }
   
   # --------------------------------------------------
-  mu.uM = unlist(object$mu.uM)
-  mu.uY = unlist(object$mu.uY)
-  sig.uM = unlist(object$sig.uM)
-  sig.uY = unlist(object$sig.uY)
-  rho.uMY = unlist(object$rho.uMY)
-  sig.uMM = sig.uM^{2}
-  sig.uYY = sig.uY^{2}
+  # mu.uM = unlist(object$mu.uM)
+  # mu.uY = unlist(object$mu.uY)
+  # sig.uM = unlist(object$sig.uM)
+  # sig.uY = unlist(object$sig.uY)
+  # rho.uMY = unlist(object$rho.uMY)
+  # sig.uMM = sig.uM^{2}
+  # sig.uYY = sig.uY^{2}
   # sig.uMY = rho.uMY * sig.uM * sig.uY
   # 
   # MU.uMY = cbind(mu.uM , mu.uY)
@@ -59,12 +59,12 @@ prBARTmediation = function(object,  # object from rBARTmediation
   object$matXtreedraws$trees = gsub(",", " ", object$matXtreedraws$trees)
   M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset
   M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset
-  Msigest = sqrt(object$iMsigest^{2} + sig.uMM)
+  Msigest = object$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
   uMreff = object$uMdraw
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = 0 # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
+      uMreff_tmp = uMreff[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
@@ -87,7 +87,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
   treetmp2 = gsub(",", " ", treetmp1)
   treetmp3 = strsplit(treetmp1, ",")[[1]]
   treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
-  Ysigest = sqrt(object$iYsigest^{2} + sig.uYY)
+  Ysigest = object$iYsigest # sqrt(object$iYsigest^{2} + sig.uYY)
   uYreff = object$uYdraw
   
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
@@ -108,7 +108,7 @@ prBARTmediation = function(object,  # object from rBARTmediation
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = 0 # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
+        uYreff_tmp = uYreff[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
