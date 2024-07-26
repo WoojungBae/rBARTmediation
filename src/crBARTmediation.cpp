@@ -435,13 +435,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     MU_uMYstr = zero_vec_2;
     
     // set up BART model
-    // mBM.setprior(alpha,mybeta,Mtau);
-    mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
+    mBM.setprior(alpha,mybeta,Mtau);
+    // mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
     mBM.setdata(pm,n,imatX,Mz,matXnc);
     mBM.setdart(a,b,matXrho,aug,dart);
     
-    // yBM.setprior(alpha,mybeta,Ytau);
-    yBM.setprior(1-(1-alpha)/2,mybeta/2,Ytau);
+    yBM.setprior(alpha,mybeta,Ytau);
+    // yBM.setprior(1-(1-alpha)/2,mybeta/2,Ytau);
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
     
@@ -485,14 +485,14 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (Moffset+uM[u_index[i]]); // +uM[u_index[i]]
+          Mz[i] = iM[i] - (Moffset); // +uM[u_index[i]]
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+uM[u_index[i]]), 1., genM);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset), 1., genM);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (Yoffset+uY[u_index[i]]); // +uY[u_index[i]]
+          Yz[i] = iY[i] - (Yoffset); // +uY[u_index[i]]
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+uY[u_index[i]]), 1., genY);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset), 1., genY);
         }
       }
       
