@@ -438,9 +438,10 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     //--------------------------------------------------
     double ratio;
+    double YMzlik = R_NegInf;
     double *uMYlik_j = new double[J];
     for(size_t j=0; j<J; j++) {
-      uMYlik_j[j] = 0. - R_PosInf;
+      uMYlik_j[j] = R_NegInf;
     }
     
     // set up BART model
@@ -476,14 +477,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     for(size_t postrep=0;postrep<total;postrep++) {
       //--------------------------------------------------
-      if(postrep==(burn/2)&&dart) {
-        mBM.startdart();
-        yBM.startdart();
-      }
-      mBM.draw(iMsigest,genM);
-      yBM.draw(iYsigest,genY);
-      
-      //--------------------------------------------------
       if(typeM1){
         double Mrss = 0.;
         for(size_t i=0;i<n;i++) {
@@ -500,18 +493,59 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       }
       
       //--------------------------------------------------
+      //--------------------------------------------------
+      double *Mzprop = new double[n];
+      double *Yzprop = new double[n];
+      double YMzlik_prop = 0.;
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (Moffset+uM[u_index[i]]); // +uM[u_index[i]]
+          Mzprop[i] = iM[i] - (Moffset+uM[u_index[i]]); // (MOffset+uM[u_index[i]])
+          YMzlik_prop += R::dnorm(Mzprop[i], 0., iMsigest, true);
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+uM[u_index[i]]), 1., genM);
+          Mzprop[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+uM[u_index[i]]), 1., genM);
+          YMzlik_prop += R::pnorm(Msign[i] * (Moffset+mBM.f(i)+uM[u_index[i]]), 0., 1., true, true);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (Yoffset+uY[u_index[i]]); // +uY[u_index[i]]
+          Yzprop[i] = iY[i] - (Yoffset+uY[u_index[i]]); // YOffset+uY[u_index[i]])
+          YMzlik_prop += R::dnorm(Yzprop[i], 0., iYsigest, true);
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+uY[u_index[i]]), 1., genY);
+          Yzprop[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+uY[u_index[i]]), 1., genY);
+          YMzlik_prop += R::pnorm(Ysign[i] * (Yoffset+yBM.f(i)+uY[u_index[i]]), 0., 1., true, true);
         }
       }
+      
+      // Mz = Mzprop;
+      // Yz = Yzprop;
+      
+      // acceptance ratio
+      ratio = exp(YMzlik_prop-YMzlik);
+      if (ratio > genM.uniform()){
+        YMzlik = YMzlik_prop;
+        Mz = Mzprop;
+        Yz = Yzprop;
+      }
+      
+      //--------------------------------------------------
+      if(postrep==(burn/2)&&dart) {
+        mBM.startdart();
+        yBM.startdart();
+      }
+      mBM.draw(iMsigest,genM);
+      yBM.draw(iYsigest,genY);
+      
+      // //--------------------------------------------------
+      // for(size_t i=0;i<n;i++) {
+      //   if(typeM==1){
+      //     Mz[i] = iM[i] - (Moffset+uM[u_index[i]]); // +uM[u_index[i]]
+      //   } else if(typeM==2){
+      //     Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+uM[u_index[i]]), 1., genM);
+      //   }
+      //   if(typeY==1){
+      //     Yz[i] = iY[i] - (Yoffset+uY[u_index[i]]); // +uY[u_index[i]]
+      //   } else if(typeY==2){
+      //     Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+uY[u_index[i]]), 1., genY);
+      //   }
+      // }
       
       //--------------------------------------------------
       // draw MU_uMYstr & SIG_uMYstr
