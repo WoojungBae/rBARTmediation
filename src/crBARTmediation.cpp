@@ -405,23 +405,23 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     
     //--------------------------------------------------
     // draw MU_uMYstr & SIG_uMYstr
-    arma::vec uMY = zero_vec_2;
+    arma::vec uMYbar = zero_vec_2;
     for(size_t j=0; j<J; j++) {
-      uMY(0) += uM[j];
-      uMY(1) += uY[j];
+      uMYbar(0) += uM[j];
+      uMYbar(1) += uY[j];
     }
-    uMY /= J;
+    uMYbar /= J;
     arma::mat uMYtuMY = zero_mat_22;
     for(size_t j=0; j<J; j++) {
-      uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
-      uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
-      uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+      uMYtuMY(0,0) += pow(uM[j] - uMYbar(0), 2.);
+      uMYtuMY(1,1) += pow(uY[j] - uMYbar(1), 2.);
+      uMYtuMY(0,1) += ((uM[j] - uMYbar(0)) * (uY[j] - uMYbar(1)));
     }
     uMYtuMY(1,0) = uMYtuMY(0,1);
-    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMYbar*uMYbar.t()); // MU_uMY0 = 0
     SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
     invSIG_uMYstr = inv(SIG_uMYstr);
-    MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+    MU_uMYtmp = J * uMYbar/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMYbar)/(lambda_uMY0 + J);
     MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
     
     // arma::mat uMYtuMY = zero_mat_22;
@@ -482,24 +482,6 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         mBM.startdart();
         yBM.startdart();
       }
-      mBM.draw(iMsigest,genM);
-      yBM.draw(iYsigest,genY);
-      
-      //--------------------------------------------------
-      if(typeM1){
-        double Mrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Mrss += pow((iM[i]-(Moffset+mBM.f(i)+MU_uMYstr(0))), 2.); // +uM[u_index[i]]
-        }
-        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
-      }
-      if(typeY1){
-        double Yrss = 0.;
-        for(size_t i=0;i<n;i++) {
-          Yrss += pow((iY[i]-(Yoffset+yBM.f(i)+MU_uMYstr(1))), 2.); // +uY[u_index[i]]
-        }
-        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
-      }
       
       // //--------------------------------------------------
       // double *Mzprop = new double[n];
@@ -542,36 +524,56 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       //--------------------------------------------------
       for(size_t i=0;i<n;i++) {
         if(typeM==1){
-          Mz[i] = iM[i] - (Moffset+MU_uMYstr(0)); // +uM[u_index[i]] // +MU_uMYstr(0)
+          Mz[i] = iM[i] - (Moffset+uM[u_index[i]]); // +uM[u_index[i]] // +MU_uMYstr(0)
         } else if(typeM==2){
-          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+MU_uMYstr(0)), 1., genM);
+          Mz[i] = Msign[i] * rtnorm(Msign[i]*mBM.f(i), -Msign[i]*(Moffset+uM[u_index[i]]), 1., genM);
         }
         if(typeY==1){
-          Yz[i] = iY[i] - (Yoffset+MU_uMYstr(1)); // +uY[u_index[i]] // +MU_uMYstr(1)
+          Yz[i] = iY[i] - (Yoffset+uY[u_index[i]]); // +uY[u_index[i]] // +MU_uMYstr(1)
         } else if(typeY==2){
-          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+MU_uMYstr(1)), 1., genY);
+          Yz[i] = Ysign[i] * rtnorm(Ysign[i]*yBM.f(i), -Ysign[i]*(Yoffset+uY[u_index[i]]), 1., genY);
         }
       }
       
       //--------------------------------------------------
-      // draw MU_uMYstr & SIG_uMYstr
-      uMY = zero_vec_2;
-      for(size_t j=0; j<J; j++) {
-        uMY(0) += uM[j];
-        uMY(1) += uY[j];
+      mBM.draw(iMsigest, genM);
+      yBM.draw(iYsigest, genY);
+      
+      //--------------------------------------------------
+      if(typeM1){
+        double Mrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Mrss += pow((iM[i]-(Moffset+mBM.f(i)+uM[u_index[i]])), 2.); // +uM[u_index[i]]
+        }
+        iMsigest = sqrt((nu*Mlambda + Mrss)/genM.chi_square(df));
       }
-      uMY /= J;
+      if(typeY1){
+        double Yrss = 0.;
+        for(size_t i=0;i<n;i++) {
+          Yrss += pow((iY[i]-(Yoffset+yBM.f(i)+uY[u_index[i]])), 2.); // +uY[u_index[i]]
+        }
+        iYsigest = sqrt((nu*Ylambda + Yrss)/genY.chi_square(df));
+      }
+      
+      //--------------------------------------------------
+      // draw MU_uMYstr & SIG_uMYstr
+      uMYbar = zero_vec_2;
+      for(size_t j=0; j<J; j++) {
+        uMYbar(0) += uM[j];
+        uMYbar(1) += uY[j];
+      }
+      uMYbar /= J;
       uMYtuMY = zero_mat_22;
       for(size_t j=0; j<J; j++) {
-        uMYtuMY(0,0) += pow(uM[j] - uMY(0), 2.);
-        uMYtuMY(1,1) += pow(uY[j] - uMY(1), 2.);
-        uMYtuMY(0,1) += ((uM[j] - uMY(0)) * (uY[j] - uMY(1)));
+        uMYtuMY(0,0) += pow(uM[j] - uMYbar(0), 2.);
+        uMYtuMY(1,1) += pow(uY[j] - uMYbar(1), 2.);
+        uMYtuMY(0,1) += ((uM[j] - uMYbar(0)) * (uY[j] - uMYbar(1)));
       }
       uMYtuMY(1,0) = uMYtuMY(0,1);
-      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMY*uMY.t()); // MU_uMY0 = 0
+      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMYbar*uMYbar.t()); // MU_uMY0 = 0
       SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
       invSIG_uMYstr = inv(SIG_uMYstr);
-      MU_uMYtmp = J * uMY/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMY)/(lambda_uMY0 + J);
+      MU_uMYtmp = J * uMYbar/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMYbar)/(lambda_uMY0 + J);
       MU_uMYstr = mvnrnd(MU_uMYtmp, SIG_uMYstr/lambda_uMY);
       
       // uMYtuMY = zero_mat_22;
@@ -588,7 +590,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       
       //--------------------------------------------------
       // draw uM, uY
-      size_t n_j, ii, ii_j;
+      size_t n_j, ii; // , ii_j;
       double precM = pow(iMsigest, -2.), precY = pow(iYsigest, -2.);
       
       // //--------------------------------------------------
@@ -915,12 +917,11 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         }
         if(nkeeptrain && (((postrep-burn+1) % skiptr) == 0)) {
           for(size_t i=0;i<n;i++) {
-            MDRAW(trcnt,i) = Moffset + mBM.f(i) + MU_uMYstr(0);
-            YDRAW(trcnt,i) = Yoffset + yBM.f(i) + MU_uMYstr(1);
+            MDRAW(trcnt,i) = Moffset + mBM.f(i);
+            YDRAW(trcnt,i) = Yoffset + yBM.f(i);
           }
           Msdraw[trcnt]=iMsigest;
           Ysdraw[trcnt]=iYsigest;
-
           for(size_t j=0;j<J;j++) {
             UMDRAW(trcnt,j) = uM[j];
             UYDRAW(trcnt,j) = uY[j];
@@ -937,18 +938,19 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           if(keeptreedraw) {
             matXtreess << ",";
             matMtreess << ",";
-            for(size_t nt=0;nt<numtree;nt++) {
-              matXtreess << mBM.gettree(nt);
-              matMtreess << yBM.gettree(nt);
+            for(size_t num=0;num<numtree;num++) {
+              matXtreess << mBM.gettree(num);
+              matMtreess << yBM.gettree(num);
 #ifndef NoRcpp
+              size_t it=(postrep-burn)/skiptreedraws;
+              
               imatXvarcnt=mBM.getnv();
               imatXvarprb=mBM.getpv();
-              
-              size_t it=(postrep-burn)/skiptreedraws;
               for(size_t q=0;q<pm;q++){
                 matXvarcnt(it,q)=imatXvarcnt[q];
                 matXvarprb(it,q)=imatXvarprb[q];
               }
+              
               imatMvarcnt=yBM.getnv();
               imatMvarprb=yBM.getpv();
               for(size_t q=0;q<py;q++){

@@ -57,8 +57,8 @@ prBARTmediation = function(object,  # object from rBARTmediation
   
   # --------------------------------------------------
   object$matXtreedraws$trees = gsub(",", " ", object$matXtreedraws$trees)
-  M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset + object$mu.uM
-  M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset + object$mu.uM
+  M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset # + object$mu.uM
+  M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset # + object$mu.uM
   Msigest = object$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
   uMreff = object$uMdraw
   for (j in 1:J) {
@@ -102,9 +102,9 @@ prBARTmediation = function(object,  # object from rBARTmediation
     matM0z1.test = rbind(M0.test[d,], matXz1.test)
     matM1z1.test = rbind(M1.test[d,], matXz1.test)
     
-    Yz0m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z0.test, mc.cores)$yhat.test) + object$Yoffset + object$mu.uY
-    Yz1m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z1.test, mc.cores)$yhat.test) + object$Yoffset + object$mu.uY
-    Yz1m1res = c(.Call("cprBART", tmp$matMtreedraws, matM1z1.test, mc.cores)$yhat.test) + object$Yoffset + object$mu.uY
+    Yz0m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z0.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
+    Yz1m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z1.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
+    Yz1m1res = c(.Call("cprBART", tmp$matMtreedraws, matM1z1.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
     for (j in 1:J) {
       whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
