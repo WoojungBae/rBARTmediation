@@ -257,7 +257,7 @@ rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL,
   res$proc.time <- proc.time()-ptm
   # --------------------------------------------------
   res$Mdraw.mean <- apply(res$Mdraw, 2, mean)
-  res$Mdraw.mean <- apply(res$Ydraw, 2, mean)
+  res$Ydraw.mean <- apply(res$Ydraw, 2, mean)
   
   names(res$matXtreedraws$cutpoints) <- dimnames(matX)[[1]]
   dimnames(res$matXvarcount)[[2]] <- as.list(dimnames(matX)[[1]])
