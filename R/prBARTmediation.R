@@ -16,16 +16,12 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-prBARTmediation = function(object0,  # object from rBARTmediation
-                           object1,  # object from rBARTmediation
+prBARTmediation = function(object,  # object from rBARTmediation
                            X.test,  # matrix X to predict at
-                           Uindex0,
-                           Uindex1){
-  # object0 = BARTfit0
-  # object1 = BARTfit1
+                           Uindex){
+  # object = BARTfit
   # X.test = cbind(C, V)
-  # Uindex0 = V0_index
-  # Uindex1 = V1_index
+  # Uindex = V0
   # --------------------------------------------------
   mc.cores = 1
   
@@ -33,15 +29,14 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   z1 = 1
   
   N = nrow(X.test)
-  n_MCMC = nrow(object0$uMdraw)
+  J = ncol(object$uMdraw)
+  n_MCMC = nrow(object$uMdraw)
   
-  J0 = ncol(object0$uMdraw)
-  J1 = ncol(object1$uMdraw)
+  matXz0.test <- t(bartModelMatrix(cbind(z0,X.test)))
+  matXz1.test <- t(bartModelMatrix(cbind(z1,X.test)))
   
-  matX.test <- t(bartModelMatrix(X.test))
-  
-  pm <- length(object0$matXtreedraws$cutpoints)
-  if(pm!=nrow(matX.test)) {
+  pm <- length(object$matXtreedraws$cutpoints)
+  if(pm!=nrow(matXz0.test)) {
     stop(paste0('The number of columns in matX.test must be equal to ', pm))
   }
   
@@ -60,112 +55,79 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   # uMYreff = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY[d,]), as.matrix(SIG.uMY[[d]]))), simplify = "array")
   
   # --------------------------------------------------
-  object0$matXtreedraws$trees = gsub(",", " ", object0$matXtreedraws$trees)
-  M0res = .Call("cprBART", object0$matXtreedraws, matX.test, mc.cores)$yhat.test + object0$Moffset # + object$mu.uM
-  Msigest0 = object0$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
-  uMreff0 = object0$uMdraw
-  for (j in 1:J0) {
-    whichUindex = which(Uindex0==j)
+  object$matXtreedraws$trees = gsub(",", " ", object$matXtreedraws$trees)
+  M0res = .Call("cprBART", object$matXtreedraws, matXz0.test, mc.cores)$yhat.test + object$Moffset # + object$mu.uM
+  M1res = .Call("cprBART", object$matXtreedraws, matXz1.test, mc.cores)$yhat.test + object$Moffset # + object$mu.uM
+  Msigest = object$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
+  uMreff = object$uMdraw
+  for (j in 1:J) {
+    whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
-      uMreff_tmp = uMreff0[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
+      uMreff_tmp = uMreff[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
       M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
-    }
-  }
-  if(object0$typeM == "continuous"){
-    M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], Msigest0))
-  } else if(object0$typeM == "binary"){
-    M0.test = pnorm(M0res)
-    M0.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M0.test[,i]))
-  } else if(object0$typeM == "multinomial"){
-    #
-  }
-  
-  # --------------------------------------------------
-  object1$matXtreedraws$trees = gsub(",", " ", object1$matXtreedraws$trees)
-  M1res = .Call("cprBART", object1$matXtreedraws, matX.test, mc.cores)$yhat.test + object1$Moffset # + object$mu.uM
-  Msigest1 = object1$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
-  uMreff1 = object1$uMdraw
-  for (j in 1:J1) {
-    whichUindex = which(Uindex1==j)
-    if(length(whichUindex)>1){
-      uMreff_tmp = uMreff1[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
       M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
     }
   }
-  if(object1$typeM == "continuous"){
-    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], Msigest1))
-  } else if(object1$typeM == "binary"){
+  if(object$typeM == "continuous"){
+    M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], Msigest))
+    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], Msigest))
+  } else if(object$typeM == "binary"){
+    M0.test = pnorm(M0res)
     M1.test = pnorm(M1res)
+    M0.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M0.test[,i]))
     M1.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M1.test[,i]))
-  } else if(object1$typeM == "multinomial"){
+  } else if(object$typeM == "multinomial"){
     #
   }
   
   # --------------------------------------------------
-  tmp0 = object0
-  treetmp01 = tmp0$matMtreedraws$trees
-  treetmp02 = gsub(",", " ", treetmp01)
-  treetmp03 = strsplit(treetmp01, ",")[[1]]
-  treetmp04 = paste("1",treetmp03[2],treetmp03[3],treetmp03[4])
-  Ysigest0 = object0$iYsigest # sqrt(object$iYsigest^{2} + sig.uYY)
-  uYreff0 = object0$uYdraw
-  
-  tmp1 = object1
-  treetmp11 = tmp1$matMtreedraws$trees
-  treetmp12 = gsub(",", " ", treetmp11)
-  treetmp13 = strsplit(treetmp11, ",")[[1]]
-  treetmp14 = paste("1",treetmp13[2],treetmp13[3],treetmp13[4])
-  Ysigest1 = object1$iYsigest # sqrt(object$iYsigest^{2} + sig.uYY)
-  uYreff1 = object1$uYdraw
+  tmp = object
+  treetmp1 = tmp$matMtreedraws$trees
+  treetmp2 = gsub(",", " ", treetmp1)
+  treetmp3 = strsplit(treetmp1, ",")[[1]]
+  treetmp4 = paste("1",treetmp3[2],treetmp3[3],treetmp3[4])
+  Ysigest = object$iYsigest # sqrt(object$iYsigest^{2} + sig.uYY)
+  uYreff = object$uYdraw
   
   Yz0m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m0.test = matrix(nrow=n_MCMC,ncol=N)
   Yz1m1.test = matrix(nrow=n_MCMC,ncol=N)
   for (d in 1:n_MCMC) {
     index = 4 + d
-    treetmp05 = paste(treetmp04,treetmp03[index])
-    tmp0$matMtreedraws$trees = treetmp05
-    treetmp15 = paste(treetmp14,treetmp13[index])
-    tmp1$matMtreedraws$trees = treetmp15
+    treetmp5 = paste(treetmp4,treetmp3[index])
+    tmp$matMtreedraws$trees = treetmp5
     
-    matM0.test = rbind(M0.test[d,], matX.test)
-    matM1.test = rbind(M1.test[d,], matX.test)
+    matM0z0.test = rbind(M0.test[d,], matXz0.test)
+    matM0z1.test = rbind(M0.test[d,], matXz1.test)
+    matM1z1.test = rbind(M1.test[d,], matXz1.test)
     
-    Yz0m0res = c(.Call("cprBART", tmp0$matMtreedraws, matM0.test, mc.cores)$yhat.test) + object0$Yoffset # + object$mu.uY
-    Yz1m0res = c(.Call("cprBART", tmp1$matMtreedraws, matM0.test, mc.cores)$yhat.test) + object1$Yoffset # + object$mu.uY
-    Yz1m1res = c(.Call("cprBART", tmp1$matMtreedraws, matM1.test, mc.cores)$yhat.test) + object1$Yoffset # + object$mu.uY
-    for (j in 1:J0) {
-      whichUindex = which(Uindex0==j)
+    Yz0m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z0.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
+    Yz1m0res = c(.Call("cprBART", tmp$matMtreedraws, matM0z1.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
+    Yz1m1res = c(.Call("cprBART", tmp$matMtreedraws, matM1z1.test, mc.cores)$yhat.test) + object$Yoffset # + object$mu.uY
+    for (j in 1:J) {
+      whichUindex = which(Uindex==j)
       if(length(whichUindex)>0){
-        uYreff_tmp = uYreff0[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
+        uYreff_tmp = uYreff[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
         Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
-      }
-    }
-    
-    for (j in 1:J1) {
-      whichUindex = which(Uindex1==j)
-      if(length(whichUindex)>0){
-        uYreff_tmp = uYreff1[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
         Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
         Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
       }
     }
-    
-    if(object0$typeY == "continuous"){
+    if(object$typeY == "continuous"){
       # Yz0m0.test[d,] = Yz0m0res
       # Yz1m0.test[d,] = Yz1m0res
       # Yz1m1.test[d,] = Yz1m1res
-      Yz0m0.test[d,] = rnorm(N, Yz0m0res, Ysigest0[d])
-      Yz1m0.test[d,] = rnorm(N, Yz1m0res, Ysigest1[d])
-      Yz1m1.test[d,] = rnorm(N, Yz1m1res, Ysigest1[d])
-    } else if(object0$typeY == "binary"){
+      Yz0m0.test[d,] = rnorm(N, Yz0m0res, Ysigest[d])
+      Yz1m0.test[d,] = rnorm(N, Yz1m0res, Ysigest[d])
+      Yz1m1.test[d,] = rnorm(N, Yz1m1res, Ysigest[d])
+    } else if(object$typeY == "binary"){
       # Yz0m0res = pnorm(Yz0m0res)
       # Yz1m0res = pnorm(Yz1m0res)
       # Yz1m1res = pnorm(Yz1m1res)
       Yz0m0.test[d,] = rbinom(N, 1, pnorm(Yz0m0res))
       Yz1m0.test[d,] = rbinom(N, 1, pnorm(Yz1m0res))
       Yz1m1.test[d,] = rbinom(N, 1, pnorm(Yz1m1res))
-    } else if(object0$typeY == "multinomial"){
+    } else if(object$typeY == "multinomial"){
       #
     }
   }

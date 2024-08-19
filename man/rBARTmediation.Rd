@@ -16,7 +16,7 @@ each tree is constrained by a prior to be a weak learner
 so that it contributes a small amount to the overall fit.
 }
 \usage{
-rBARTmediation(Y, M, C, V, Uindex=NULL, 
+rBARTmediation(Y, M, Z, C, V, Uindex=NULL, 
                typeY = "continuous",
                typeM = "continuous",
                B_uM=NULL, B_uY=NULL,
@@ -49,6 +49,7 @@ rBARTmediation(Y, M, C, V, Uindex=NULL,
     If \eqn{m} is binary (has only 0's and 1's), then a binary BART model
     with a probit link is fit by default: you can over-ride the default via the
     argument \code{type} to specify a logit BART model.}
+  \item{Z}{Cluster-level treatment (Binary).}
   \item{C}{Individual-level:
     Explanatory variables for training (in sample)
     data.\cr May be a matrix or a data frame, with (as usual) rows
@@ -262,6 +263,53 @@ rBARTmediation(Y, M, C, V, Uindex=NULL,
 }
 \seealso{
   \code{\link{rBART}}
+}
+\examples{
+  library(rBARTmediation)
+  
+  # simulate data (example from Friedman MARS paper)
+  f = function(x){
+    10*sin(pi*x[,1]*x[,2]) + 20*(x[,3]-.5)^2 + 10*x[,4] + 5*x[,5]
+  }
+  
+  g = function(x){
+    10*cos(pi*x[,1]*x[,7]) + 20*(x[,8]-.5)^2 + 10*x[,9] + 5*x[,10]
+  }
+  
+  set.seed(0)
+  
+  # number of observations
+  n = 1000
+  
+  # 10 variables, only first 5 matter
+  J = 10
+  u0 = sample(1:J, n, replace = TRUE)
+  z = rbinom(J, 1, 0.5)
+  z = z[u0]
+  x = matrix(runif(n*9),n,9)
+  c = x[,1:6]
+  v = x[,7:9]
+  
+  # m = f(matx) + Msigma * z where Msigma = 1.0 and z ~ N(0,1) and matx = cbind(z, x)
+  m0 = f(cbind(0, x)) + 1*rnorm(n)
+  m1 = f(cbind(1, x)) + 1*rnorm(n)
+  m = ifelse(z==1,m1,m0)
+  
+  # y = g(matx) * m + Ysigma * z where Ysigma = 2.0 and z ~ N(0,1) and matx = cbind(z, x)
+  y00 = g(cbind(0, x)) * m0 + 2 * rnorm(n)
+  y10 = g(cbind(1, x)) * m0 + 2 * rnorm(n)
+  y11 = g(cbind(1, x)) * m1 + 2 * rnorm(n)
+  y = ifelse(z==1,y11,y00)
+  
+  # test BART with token run to ensure installation works
+  BARTfit = rBARTmediation(y,m,z,c,v,u0,nskip=5,ndpost=5)
+  BARTfitPRED = predict(BARTfit,x,u0)
+
+  \dontrun{
+    # run BART
+    BARTfit = rBARTmediation(y,m,z,c,v,u0)
+    BARTfitPRED = predict(BARTfit,x,u0)
+  }
 }
 \keyword{nonparametric}
 \keyword{tree}

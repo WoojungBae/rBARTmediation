@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-rBARTmediation = function(Y, M, C, V, Uindex=NULL, 
+rBARTmediation = function(Y, M, Z, C, V, Uindex=NULL, 
                           typeY = "continuous",
                           typeM = "continuous",
                           B_uM=NULL, B_uY=NULL,
@@ -69,7 +69,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   
   n <- length(Y)
   X <- cbind(C, V)
-  matX <- cbind(X)
+  matX <- cbind(Z, X)
   matM <- cbind(M, matX)
   
   if(length(Uindex)==0){
