@@ -56,7 +56,7 @@ predict.rBART <- function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()
     lY <- kY-1
     pred <- as.list(1:lY)
     trees <- object$treedraws$trees
-
+    
     for(k in 1:lY) {
       ## eval(parse(text=paste0('object$treedraws$trees=',
       ##                        'object$treedraws$tree', k)))
@@ -75,7 +75,7 @@ predict.rBART <- function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()
     res$yhat.test <- matrix(nrow=ndpost, ncol=kY*np)
     res$prob.test <- matrix(nrow=ndpost, ncol=kY*np)
     res$comp.test <- matrix(nrow=ndpost, ncol=kY*np)
-
+    
     for(i in 1:np) {
       for(j in 1:kY) {
         k <- (i-1)*kY+j
@@ -95,7 +95,7 @@ predict.rBART <- function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()
         }
       }
     }
-
+    
     res$prob.test.mean <- apply(res$prob.test, 2, mean)
     res$yhat.test.mean <- NULL
     res$comp.test <- NULL
