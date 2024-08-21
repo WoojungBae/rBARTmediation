@@ -19,13 +19,13 @@
 prBARTmediation = function(object0,  # object from rBARTmediation
                            object1,  # object from rBARTmediation
                            X.test,  # matrix X to predict at
-                           Uindex0,
-                           Uindex1){
+                           Uindex){
   # object0 = BARTfit0
   # object1 = BARTfit1
   # X.test = cbind(C, V)
-  # Uindex0 = V0_index
-  # Uindex1 = V1_index
+  # Uindex0 = Uindex0
+  # Uindex1 = Uindex1
+  
   # --------------------------------------------------
   mc.cores = 1
   
@@ -45,59 +45,70 @@ prBARTmediation = function(object0,  # object from rBARTmediation
     stop(paste0('The number of columns in matX.test must be equal to ', pm))
   }
   
-  # # --------------------------------------------------
-  # mu.uM = unlist(object$mu.uM)
-  # mu.uY = unlist(object$mu.uY)
-  # sig.uM = unlist(object$sig.uM)
-  # sig.uY = unlist(object$sig.uY)
-  # rho.uMY = unlist(object$rho.uMY)
-  # sig.uMM = sig.uM^{2}
-  # sig.uYY = sig.uY^{2}
-  # sig.uMY = rho.uMY * sig.uM * sig.uY
-  # MU.uMY = cbind(mu.uM , mu.uY)
-  # SIG.uMY = lapply(1:n_MCMC, function(d)
-  #   rbind(c(sig.uMM[d], sig.uMY[d]), c(sig.uMY[d], sig.uYY[d])))
-  # uMYreff = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY[d,]), as.matrix(SIG.uMY[[d]]))), simplify = "array")
+  # --------------------------------------------------
+  mu.uM0 = unlist(object0$mu.uM)
+  mu.uY0 = unlist(object0$mu.uY)
+  sig.uM0 = unlist(object0$sig.uM)
+  sig.uY0 = unlist(object0$sig.uY)
+  rho.uMY0 = unlist(object0$rho.uMY)
+  sig.uMM0 = sig.uM0^{2}
+  sig.uYY0 = sig.uY0^{2}
+  sig.uMY0 = rho.uMY0 * sig.uM0 * sig.uY0
+  MU.uMY0 = cbind(mu.uM0 , mu.uY0)
+  SIG.uMY0 = lapply(1:n_MCMC, function(d)
+    rbind(c(sig.uMM0[d], sig.uMY0[d]), c(sig.uMY0[d], sig.uYY0[d])))
+  uMYreff0 = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY0[d,]), as.matrix(SIG.uMY0[[d]]))), simplify = "array")
+  
+  mu.uM1 = unlist(object1$mu.uM)
+  mu.uY1 = unlist(object1$mu.uY)
+  sig.uM1 = unlist(object1$sig.uM)
+  sig.uY1 = unlist(object1$sig.uY)
+  rho.uMY1 = unlist(object1$rho.uMY)
+  sig.uMM1 = sig.uM1^{2}
+  sig.uYY1 = sig.uY1^{2}
+  sig.uMY1 = rho.uMY1 * sig.uM1 * sig.uY1
+  MU.uMY1 = cbind(mu.uM1 , mu.uY1)
+  SIG.uMY1 = lapply(1:n_MCMC, function(d)
+    rbind(c(sig.uMM1[d], sig.uMY1[d]), c(sig.uMY1[d], sig.uYY1[d])))
+  uMYreff1 = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY1[d,]), as.matrix(SIG.uMY1[[d]]))), simplify = "array")
   
   # --------------------------------------------------
   object0$matXtreedraws$trees = gsub(",", " ", object0$matXtreedraws$trees)
+  object1$matXtreedraws$trees = gsub(",", " ", object1$matXtreedraws$trees)
   M0res = .Call("cprBART", object0$matXtreedraws, matX.test, mc.cores)$yhat.test + object0$Moffset # + object$mu.uM
+  M1res = .Call("cprBART", object1$matXtreedraws, matX.test, mc.cores)$yhat.test + object1$Moffset # + object$mu.uM
   Msigest0 = object0$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
+  Msigest1 = object1$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
   uMreff0 = object0$uMdraw
-  for (j in 1:J0) {
-    whichUindex = which(Uindex0==j)
-    if(length(whichUindex)>0){
-      uMreff_tmp = uMreff0[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
-      M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
+  uMreff1 = object1$uMdraw
+  
+  j0 = 1; j1 = 1
+  for (j in 1:J) {
+    if (uniqueUindex01[j,2]==0){
+      whichUindex = which(Uindex==j)
+      if(length(whichUindex)>0){
+        uMreff_tmp = uMreff0[,j0] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
+        M0res[,whichUindex] = M0res[,whichUindex] + uMreff_tmp
+      }
+      j0 = j0 + 1
+    } else if (uniqueUindex01[j,2]==1){
+      whichUindex = which(Uindex==j)
+      if(length(whichUindex)>0){
+        uMreff_tmp = uMreff1[,j1] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
+        M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
+      }
+      j1 = j1 + 1
     }
   }
   if(object0$typeM == "continuous"){
     M0.test = sapply(1:N, function(i) rnorm(n_MCMC, M0res[,i], Msigest0))
+    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], Msigest1))
   } else if(object0$typeM == "binary"){
     M0.test = pnorm(M0res)
-    M0.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M0.test[,i]))
-  } else if(object0$typeM == "multinomial"){
-    #
-  }
-  
-  # --------------------------------------------------
-  object1$matXtreedraws$trees = gsub(",", " ", object1$matXtreedraws$trees)
-  M1res = .Call("cprBART", object1$matXtreedraws, matX.test, mc.cores)$yhat.test + object1$Moffset # + object$mu.uM
-  Msigest1 = object1$iMsigest # sqrt(object$iMsigest^{2} + sig.uMM)
-  uMreff1 = object1$uMdraw
-  for (j in 1:J1) {
-    whichUindex = which(Uindex1==j)
-    if(length(whichUindex)>1){
-      uMreff_tmp = uMreff1[,j] # uMYreff[1,j,] # uMreff[,j] # rnorm(n_MCMC, mu.uM, sig.uM) # mu.uM # sig.uM
-      M1res[,whichUindex] = M1res[,whichUindex] + uMreff_tmp
-    }
-  }
-  if(object1$typeM == "continuous"){
-    M1.test = sapply(1:N, function(i) rnorm(n_MCMC, M1res[,i], Msigest1))
-  } else if(object1$typeM == "binary"){
     M1.test = pnorm(M1res)
+    M0.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M0.test[,i]))
     M1.test = sapply(1:N, function(i) rbinom(n_MCMC, 1, M1.test[,i]))
-  } else if(object1$typeM == "multinomial"){
+  } else if(object0$typeM == "multinomial"){
     #
   }
   
@@ -134,20 +145,23 @@ prBARTmediation = function(object0,  # object from rBARTmediation
     Yz0m0res = c(.Call("cprBART", tmp0$matMtreedraws, matM0.test, mc.cores)$yhat.test) + object0$Yoffset # + object$mu.uY
     Yz1m0res = c(.Call("cprBART", tmp1$matMtreedraws, matM0.test, mc.cores)$yhat.test) + object1$Yoffset # + object$mu.uY
     Yz1m1res = c(.Call("cprBART", tmp1$matMtreedraws, matM1.test, mc.cores)$yhat.test) + object1$Yoffset # + object$mu.uY
-    for (j in 1:J0) {
-      whichUindex = which(Uindex0==j)
-      if(length(whichUindex)>0){
-        uYreff_tmp = uYreff0[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
-        Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
-      }
-    }
-    
-    for (j in 1:J1) {
-      whichUindex = which(Uindex1==j)
-      if(length(whichUindex)>0){
-        uYreff_tmp = uYreff1[d,j] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
-        Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
-        Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
+    j0 = 1; j1 = 1
+    for (j in 1:J) {
+      if (uniqueUindex01[j,2]==0){
+        whichUindex = which(Uindex==j)
+        if(length(whichUindex)>0){
+          uYreff_tmp = uYreff0[d,j0] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
+          Yz0m0res[whichUindex] = Yz0m0res[whichUindex] + uYreff_tmp
+        }
+        j0 = j0 + 1
+      } else if (uniqueUindex01[j,2]==1){
+        whichUindex = which(Uindex==j)
+        if(length(whichUindex)>0){
+          uYreff_tmp = uYreff1[d,j1] # uMYreff[2,j,d] # uYreff[d,j] # rnorm(1, mu.uY[d], sig.uY[d]) # mu.uY[d] # sig.uY[d]
+          Yz1m0res[whichUindex] = Yz1m0res[whichUindex] + uYreff_tmp
+          Yz1m1res[whichUindex] = Yz1m1res[whichUindex] + uYreff_tmp
+        }
+        j1 = j1 + 1
       }
     }
     
