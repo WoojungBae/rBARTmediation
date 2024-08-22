@@ -20,15 +20,13 @@ small amount to the overall fit.
 prBARTmediation(object0,   # object from rBARTmediation
                 object1,   # object from rBARTmediation
                 X.test,   # matX matrix to predict at
-                Uindex0,
-                Uindex1)
+                Uindex)
 }
 \arguments{
   \item{object0}{\code{object0} returned from \code{rBARTmediation}.}
   \item{object1}{\code{object1} returned from \code{rBARTmediation}.}
   \item{X.test}{Matrix of covariates to predict \eqn{y} for.}
-  \item{Uindex0}{Integer indices specifying the random effects.}
-  \item{Uindex1}{Integer indices specifying the random effects.}
+  \item{Uindex}{Integer indices specifying the random effects.}
 }
 \details{
    BART is an Bayesian MCMC method.
