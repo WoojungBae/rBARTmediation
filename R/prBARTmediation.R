@@ -38,7 +38,7 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   J1 = ncol(object1$uMdraw)
   J = J0 + J1
   
-  matX.test <- t(bartModelMatrix(X.test))
+  matX.test <- t(bartModelMatrix(X.test, rm.const=FALSE))
   
   pm <- length(object0$matXtreedraws$cutpoints)
   if(pm!=nrow(matX.test)) {
