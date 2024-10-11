@@ -1,4 +1,3 @@
-
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2017-2018 Robert McCulloch and Rodney Sparapani
 
@@ -57,7 +56,9 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   MU.uMY0 = cbind(mu.uM0 , mu.uY0)
   SIG.uMY0 = lapply(1:n_MCMC, function(d)
     rbind(c(sig.uMM0[d], sig.uMY0[d]), c(sig.uMY0[d], sig.uYY0[d])))
-  uMYreff0 = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY0[d,]), as.matrix(SIG.uMY0[[d]]))), simplify = "array")
+  uMYreff0 = sapply(1:n_MCMC, function(d) 
+    t(.Call("crmvnorm", J, c(MU.uMY0[d,]), as.matrix(SIG.uMY0[[d]]))), 
+    simplify = "array")
   
   mu.uM1 = unlist(object1$mu.uM)
   mu.uY1 = unlist(object1$mu.uY)
@@ -70,7 +71,9 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   MU.uMY1 = cbind(mu.uM1 , mu.uY1)
   SIG.uMY1 = lapply(1:n_MCMC, function(d)
     rbind(c(sig.uMM1[d], sig.uMY1[d]), c(sig.uMY1[d], sig.uYY1[d])))
-  uMYreff1 = sapply(1:n_MCMC, function(d) t(.Call("crmvnorm", J, c(MU.uMY1[d,]), as.matrix(SIG.uMY1[[d]]))), simplify = "array")
+  uMYreff1 = sapply(1:n_MCMC, function(d) 
+    t(.Call("crmvnorm", J, c(MU.uMY1[d,]), as.matrix(SIG.uMY1[[d]]))), 
+    simplify = "array")
   
   # --------------------------------------------------
   object0$matXtreedraws$trees = gsub(",", " ", object0$matXtreedraws$trees)
