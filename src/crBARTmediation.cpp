@@ -385,7 +385,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::vec MU_uMY0 = zero_vec_2;
     // arma::mat SIG_uMY0 = eye_mat_22;
     // arma::mat SIG_uMY0 = {{B_uM,0},{0,B_uY}};
-    arma::mat SIG_uMY0 = {{B_uM/J,0},{0,B_uY/J}};
+    // arma::mat SIG_uMY0 = {{B_uM/2,0},{0,B_uY/2}};
+    arma::mat SIG_uMY0 = {{2*B_uM/J,0},{0,2*B_uY/J}};
     // arma::mat SIG_uMY0 = {{1/B_uM,0},{0,1/B_uY}};
     arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
     arma::vec MU_uMYtmp;
@@ -447,13 +448,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     // }
     
     // set up BART model
-    // mBM.setprior(alpha,mybeta,Mtau);
-    mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
+    mBM.setprior(alpha,mybeta,Mtau);
+    // mBM.setprior(1-(1-alpha)/2,mybeta/2,Mtau);
     mBM.setdata(pm,n,imatX,Mz,matXnc);
     mBM.setdart(a,b,matXrho,aug,dart);
     
-    // yBM.setprior(alpha,mybeta,Ytau);
-    yBM.setprior(1-(1-alpha)/2,mybeta/2,Ytau);
+    yBM.setprior(alpha,mybeta,Ytau);
+    // yBM.setprior(1-(1-alpha)/2,mybeta/2,Ytau);
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
     
@@ -932,9 +933,9 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
           sigMudraw[trcnt] = sqrt(SIG_uMYstr(0,0));
           sigYudraw[trcnt] = sqrt(SIG_uMYstr(1,1));
           rhoMYudraw[trcnt] = SIG_uMYstr(0,1)/sqrt(SIG_uMYstr(0,0)*SIG_uMYstr(1,1));
-
+          
           trcnt+=1;
-
+          
           keeptreedraw = nkeeptreedraws && (((postrep-burn+1) % skiptreedraws) == 0);
           if(keeptreedraw) {
             matXtreess << ",";
