@@ -31,10 +31,10 @@ prBARTmediation = function(object0,  # object from rBARTmediation
   z1 = 1
 
   N = nrow(X.test)
-  n_MCMC = nrow(object0$uMdraw)
+  n_MCMC = nrow(object0$uYdraw)
 
-  J0 = ncol(object0$uMdraw)
-  J1 = ncol(object1$uMdraw)
+  J0 = ncol(object0$uYdraw)
+  J1 = ncol(object1$uYdraw)
   J = J0 + J1
 
   matX.test <- t(bartModelMatrix(X.test, rm.const=FALSE))

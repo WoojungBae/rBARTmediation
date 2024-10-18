@@ -65,16 +65,16 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
       Moffset <- 0
     }
   }
-
+  
   n <- length(Y)
   X <- cbind(C, V)
   matX <- cbind(X)
   matM <- cbind(M, matX)
-
+  
   if(length(Uindex)==0){
     stop("the random effects indices must be provided")
   }
-
+  
   # --------------------------------------------------
   tmp.order <- order(Uindex)
   matX <- matX[tmp.order,]
@@ -82,7 +82,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   M <- M[tmp.order]
   Y <- Y[tmp.order]
   Uindex <- Uindex[tmp.order]
-
+  
   u.index <- unique(Uindex)
   u0.index <- integer(n) ## changing from R/arbitrary indexing to C/0
   for(i in 1:n) {
@@ -91,7 +91,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   u.index <- unique(u0.index)
   J <- length(u.index)
   n.j.vec <- as.numeric(table(u0.index))
-
+  
   # --------------------------------------------------
   if(!transposed) {
     matXtemp <- bartModelMatrix(matX, matXnumcut, usequants=usequants,
@@ -113,7 +113,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     matXrm.const <- NULL
     matMrm.const <- NULL
   }
-
+  
   if(n!=ncol(matX)){
     stop('The length of M and the number of rows in matX must be identical')
   }
@@ -135,13 +135,16 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
       if(is.na(Msigest)) {
         if(pm < n) {
           dataM = data.frame(t(matX),u0.index,M)
+          # dataM = data.frame(apply(matX, 1, scale),u0.index,M)
           namesM = names(dataM)[1:pm]
+          # namesM = names(dataM)[1:(pm+1)]
           formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
-          lmeMtemp <- lme(formulM, random=~1|factor(u0.index), dataM)
+          lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
+          # lmeMtemp <- lme(M~., random = ~ 1 | factor(u0.index), data.frame(t(matX),u0.index,M))
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- as.numeric(VarCorr(lmeMtemp)[1,2])
+            B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1])
           }
         } else {
           Msigest <- 1 * sd(M)
@@ -176,13 +179,16 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
       if(is.na(Ysigest)) {
         if(py < n) {
           dataY = data.frame(t(matM),u0.index,Y)
+          # dataY = data.frame(apply(matM, 2, scale), u0.index, Y)
           namesY = names(dataY)[1:py]
+          # namesY = names(dataY)[1:(py+1)]
           formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
-          lmeYtemp <- lme(formulY, random=~1|factor(u0.index), dataY)
+          lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
+          # lmeYtemp <- lme(Y~., random = ~ 1 | factor(u0.index), data.frame(t(matM),u0.index,Y))
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- as.numeric(VarCorr(lmeYtemp)[1,2])
+            B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1])
           }
         } else {
           Ysigest <- 1 * sd(Y)
