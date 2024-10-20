@@ -383,14 +383,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     double lambda_uMY = lambda_uMY0 + J;
     
     arma::vec MU_uMY0 = zero_vec_2;
-    // arma::mat SIG_uMY0 = eye_mat_22;
-    arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
+    // arma::mat SIG_uMY0 = eye_mat_22/J;
+    // arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
     // arma::mat SIG_uMY0 = {{2*B_uM,0.},{0.,2*B_uY}};
     // arma::mat SIG_uMY0 = {{4*B_uM,0.},{0.,4*B_uY}};
     // arma::mat SIG_uMY0 = {{B_uM/2,0.},{0.,B_uY/2}};
-    // arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
     // arma::mat SIG_uMY0 = {{2*B_uM/J,0.},{0.,2*B_uY/J}};
-    // arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
+    arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
     arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
     arma::vec MU_uMYtmp;
     arma::mat SIG_uMYtmp;
