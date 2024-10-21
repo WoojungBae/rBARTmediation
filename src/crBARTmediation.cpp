@@ -377,7 +377,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_vec_2 = arma::zeros(2);
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
-    double nu_uMY0 = 2; // > p - 1 (p=2)
+    double nu_uMY0 = 3; // > p - 1 (p=2)
     double lambda_uMY0 = 0.5;
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
@@ -385,10 +385,12 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     // arma::vec MU_uMY0 = zero_vec_2;
     // arma::mat SIG_uMY0 = eye_mat_22/J;
     // arma::mat SIG_uMY0 = eye_mat_22/n;
+    // arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
     // arma::mat SIG_uMY0 = {{2*B_uM,0.},{0.,2*B_uY}};
     // arma::mat SIG_uMY0 = {{4*B_uM,0.},{0.,4*B_uY}};
     // arma::mat SIG_uMY0 = {{B_uM/2,0.},{0.,B_uY/2}};
     // arma::mat SIG_uMY0 = {{2*B_uM/J,0.},{0.,2*B_uY/J}};
+    // arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
     arma::mat SIG_uMY0 = {{B_uM/n,0.},{0.,B_uY/n}};
     // arma::mat SIG_uMY0 = {{B_uM/(nu_uMY0+2+1),0.},{0.,B_uY/(nu_uMY0+2+1)}};
     // arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
@@ -423,7 +425,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
       uMYtuMY(0,1) += ((uM[j] - uMYbar(0)) * (uY[j] - uMYbar(1)));
     }
     uMYtuMY(1,0) = uMYtuMY(0,1);
-    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMYbar*uMYbar.t()); // MU_uMY0 = 0
+    SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (uMYbar*uMYbar.t())*(lambda_uMY0*J/lambda_uMY); // MU_uMY0 = 0
     SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
     invSIG_uMYstr = inv(SIG_uMYstr);
     MU_uMYtmp = J * uMYbar/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMYbar)/(lambda_uMY0 + J);
@@ -577,7 +579,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
         uMYtuMY(0,1) += ((uM[j] - uMYbar(0)) * (uY[j] - uMYbar(1)));
       }
       uMYtuMY(1,0) = uMYtuMY(0,1);
-      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (lambda_uMY0*J/lambda_uMY)*(uMYbar*uMYbar.t()); // MU_uMY0 = 0
+      SIG_uMYtmp = SIG_uMY0 + uMYtuMY + (uMYbar*uMYbar.t())*(lambda_uMY0*J/lambda_uMY); // MU_uMY0 = 0
       SIG_uMYstr = iwishrnd(SIG_uMYtmp, nu_uMY);
       invSIG_uMYstr = inv(SIG_uMYstr);
       MU_uMYtmp = J * uMYbar/lambda_uMY; // (lambda_uMY0 * MU_uMY0 + J * uMYbar)/(lambda_uMY0 + J);
