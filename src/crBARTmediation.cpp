@@ -17,7 +17,7 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 //  forked from package RcppDist
-#include <RcppArmadillo.h>
+#include <RcppArmadillo.h> 
 #include "mvnorm.h"
 #include "wishart.h"
 
@@ -368,8 +368,8 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     double mu_uY = 0., sd_uY = B_uY; // , sd_uY = B_uY * 0.5, tau_uY=pow(sd_uY, -2.), invB2Y=pow(B_uY, -2.);
     if(uM[0]!=uM[0] || uY[0]!=uY[0]) {
       for(size_t j=0; j<J; j++) {
-        uM[j]=sd_uM * genM.normal() + mu_uM;
-        uY[j]=sd_uY * genY.normal() + mu_uY;
+        uM[j] = sd_uM * genM.normal() + mu_uM;
+        uY[j] = sd_uY * genY.normal() + mu_uY;
       }
     }
     
@@ -377,20 +377,21 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_vec_2 = arma::zeros(2);
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
-    double nu_uMY0 = 4; // > p - 1 (p=2)
+    double nu_uMY0 = 2; // > p - 1 (p=2)
     double lambda_uMY0 = 0.5;
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
     
-    arma::vec MU_uMY0 = zero_vec_2;
+    // arma::vec MU_uMY0 = zero_vec_2;
     // arma::mat SIG_uMY0 = eye_mat_22/J;
-    // arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
+    // arma::mat SIG_uMY0 = eye_mat_22/n;
     // arma::mat SIG_uMY0 = {{2*B_uM,0.},{0.,2*B_uY}};
     // arma::mat SIG_uMY0 = {{4*B_uM,0.},{0.,4*B_uY}};
     // arma::mat SIG_uMY0 = {{B_uM/2,0.},{0.,B_uY/2}};
     // arma::mat SIG_uMY0 = {{2*B_uM/J,0.},{0.,2*B_uY/J}};
-    arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
-    arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
+    arma::mat SIG_uMY0 = {{B_uM/n,0.},{0.,B_uY/n}};
+    // arma::mat SIG_uMY0 = {{B_uM/(nu_uMY0+2+1),0.},{0.,B_uY/(nu_uMY0+2+1)}};
+    // arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
     arma::vec MU_uMYtmp;
     arma::mat SIG_uMYtmp;
     arma::mat invSIG_uMYtmp; // inv(SIG_uMYtmp);
