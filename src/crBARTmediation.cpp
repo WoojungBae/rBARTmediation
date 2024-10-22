@@ -377,7 +377,7 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     arma::mat zero_vec_2 = arma::zeros(2);
     arma::mat zero_mat_22 = arma::zeros(2,2);
     
-    double nu_uMY0 = 3; // > p - 1 (p=2)
+    double nu_uMY0 = 4; // > p - 1 (p=2)
     double lambda_uMY0 = 0.5;
     double nu_uMY = nu_uMY0 + J;
     double lambda_uMY = lambda_uMY0 + J;
@@ -385,13 +385,13 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     // arma::vec MU_uMY0 = zero_vec_2;
     // arma::mat SIG_uMY0 = eye_mat_22/J;
     // arma::mat SIG_uMY0 = eye_mat_22/n;
-    // arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
+    arma::mat SIG_uMY0 = {{B_uM,0.},{0.,B_uY}};
     // arma::mat SIG_uMY0 = {{2*B_uM,0.},{0.,2*B_uY}};
     // arma::mat SIG_uMY0 = {{4*B_uM,0.},{0.,4*B_uY}};
     // arma::mat SIG_uMY0 = {{B_uM/2,0.},{0.,B_uY/2}};
     // arma::mat SIG_uMY0 = {{2*B_uM/J,0.},{0.,2*B_uY/J}};
     // arma::mat SIG_uMY0 = {{B_uM/J,0.},{0.,B_uY/J}};
-    arma::mat SIG_uMY0 = {{B_uM/n,0.},{0.,B_uY/n}};
+    // arma::mat SIG_uMY0 = {{B_uM/n,0.},{0.,B_uY/n}};
     // arma::mat SIG_uMY0 = {{B_uM/(nu_uMY0+2+1),0.},{0.,B_uY/(nu_uMY0+2+1)}};
     // arma::mat invSIG_uMY0 =  inv(SIG_uMY0);
     arma::vec MU_uMYtmp;
