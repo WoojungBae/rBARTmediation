@@ -142,7 +142,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
             formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
             lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
           } else {
-            namesM = names(dataM)[c(1,(ncol(C)+1))]
+            namesM = names(dataM)[1] # [c(1,(ncol(C)+1))]
             formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
             lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
           }
@@ -191,7 +191,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
             formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
             lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
           } else {
-            namesY = names(dataY)[c(1,(ncol(C)+1))]
+            namesY = names(dataY)[1] # [c(1,(ncol(C)+1))]
             formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
             lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
           }
