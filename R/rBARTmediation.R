@@ -141,17 +141,13 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # dataM = data.frame(apply(matX, 1, scale),u0.index,M)
           if (qr(matX)$rank == pm){
             namesM = names(dataM)[1:pm]
-            formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
-            lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
-          }  else if (qr(C)$rank == pc){
-            namesM = names(dataM)[1:pc] # [c(1,(ncol(C)+1))]
-            formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
-            lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
+          } else if (qr(C)$rank == pc){
+            namesM = names(dataM)[1:pc]
           } else {
-            namesM = names(dataM)[1] # [c(1,(ncol(C)+1))]
-            formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
-            lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
+            namesM = names(dataM)[1]
           }
+          formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
+          lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
@@ -194,17 +190,13 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # dataY = data.frame(apply(matM, 1, scale), u0.index, Y)
           if (qr(matM)$rank == py){
             namesY = names(dataY)[1:py]
-            formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
-            lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
           } else if (qr(C)$rank == pc){
-            namesY = names(dataY)[1:pc] # [c(1,(ncol(C)+1))]
-            formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
-            lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
+            namesY = names(dataY)[1:pc]
           } else {
-            namesY = names(dataY)[1] # [c(1,(ncol(C)+1))]
-            formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
-            lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
+            namesY = names(dataY)[1]
           }
+          formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
+          lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
