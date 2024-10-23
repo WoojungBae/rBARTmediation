@@ -117,7 +117,9 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   if(n!=ncol(matX)){
     stop('The length of M and the number of rows in matX must be identical')
   }
-
+  
+  pc = ncol(C)
+  
   pm <- nrow(matX)
   if(length(matXrho)==0) matXrho=pm
   if(length(matXrm.const)==0) matXrm.const <- 1:pm
@@ -139,6 +141,10 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # dataM = data.frame(apply(matX, 1, scale),u0.index,M)
           if (qr(matX)$rank == pm){
             namesM = names(dataM)[1:pm]
+            formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
+            lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
+          }  else if (qr(C)$rank == pc){
+            namesM = names(dataM)[1:pc] # [c(1,(ncol(C)+1))]
             formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+")))
             lmeMtemp <- lme(formulM, random = ~ 1 | factor(u0.index), dataM)
           } else {
@@ -188,6 +194,10 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # dataY = data.frame(apply(matM, 1, scale), u0.index, Y)
           if (qr(matM)$rank == py){
             namesY = names(dataY)[1:py]
+            formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
+            lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
+          } else if (qr(C)$rank == pc){
+            namesY = names(dataY)[1:pc] # [c(1,(ncol(C)+1))]
             formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+")))
             lmeYtemp <- lme(formulY, random = ~ 1 | factor(u0.index), dataY)
           } else {
