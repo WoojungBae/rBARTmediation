@@ -136,17 +136,13 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     if(is.na(Mlambda)) {
       if(is.na(Msigest)) {
         if(pm < n) {
-          matXtemp = cbind(t(matX),1)
-          dataM = data.frame(matXtemp,u0.index,M)
+          matXtemp <- cbind(t(matX),1,u0.index)
+          dataM <- data.frame(matXtemp,M)
           removeM <- caret::findLinearCombos(dataM)$remove
           if (length(removeM)>0){
-            dataM = dataM[,-removeM]
+            dataM <- dataM[,-removeM]
           }
-          if (qr(matXtemp)$rank == (pm+1)){
-            namesM = names(dataM)[1:(pm+1)]
-          } else {
-            namesM = names(dataM)[1:(pc+1)] # [c(1,(ncol(C)+1))]
-          }
+          namesM <- names(dataM)[1:(ncol(dataM)-1)]
           formulM <- stats::as.formula(paste0("M~0+",paste(namesM, collapse="+")))
           lmeMtemp <- lme(formulM,random=list(~1|factor(u0.index)),dataM)
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
@@ -196,17 +192,13 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     if(is.na(Ylambda)) {
       if(is.na(Ysigest)) {
         if(py < n) {
-          matMtemp = cbind(t(matM),1)
-          dataY <- data.frame(matMtemp,u0.index,Y)
+          matMtemp <- cbind(t(matM),1,u0.index)
+          dataY <- data.frame(matMtemp,Y)
           removeY <- caret::findLinearCombos(dataY)$remove
           if (length(removeY)>0){
             dataY <- dataY[,-removeY]
           }
-          if (qr(matMtemp)$rank == (py+1)){
-            namesY <- names(dataY)[1:(py+1)]
-          } else if (qr(C)$rank == pc){
-            namesY <- names(dataY)[1:(pc+1)] # [c(1,(ncol(C)+1))]
-          }
+          namesY <- names(dataY)[1:(ncol(dataY)-1)]
           formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
           lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
