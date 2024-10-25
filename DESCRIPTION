@@ -10,7 +10,7 @@ Author: Woojung Bae [aut, cre],
 Maintainer: Woojung Bae <matt.woojung@gmail.com>
 Description: Mediation analysis using correlated BART models with random effects.
 License: GPL (>= 2)
-Depends: R (>= 2.10), nnet, lme4, nlme
+Depends: R (>= 2.10), nnet, caret, nlme
 Imports: Rcpp (>= 0.12.3), parallel, tools
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: MASS
