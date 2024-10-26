@@ -148,7 +148,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
+            B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
           }
           # namesM <- names(dataM)[1:pm]
           # formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+"),"+(1 | u0.index)"))
@@ -202,7 +202,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
+            B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
           }
           # namesY <- names(dataY)[1:py]
           # formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+"),"+(1 | u0.index)"))
