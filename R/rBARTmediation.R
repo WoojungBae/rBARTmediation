@@ -148,7 +148,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
           uM <- c(lmeMtemp$coefficients$random[[1]])
           if(length(B_uM)==0) {
-            B_uM <- max(c(0.5,as.numeric(VarCorr(lmeMtemp)[1,])))
+            B_uM <- max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
           }
           # namesM <- names(dataM)[1:pm]
           # formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+"),"+(1 | u0.index)"))
@@ -177,13 +177,11 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     }
   } else {
     uM <- double(J); uM[1] <- NaN
-
     Mlambda <- 1
     Msigest <- 1
     if(length(B_uM)==0) {
       B_uM <- sd(M)
     }
-
     Mtau.num <- 3
     Mtau <- Mtau.num/(k*sqrt(ntree))
   }
@@ -204,7 +202,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
-            B_uY <- max(c(0.5,as.numeric(VarCorr(lmeYtemp)[1,])))
+            B_uY <- max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
           }
           # namesY <- names(dataY)[1:py]
           # formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+"),"+(1 | u0.index)"))
@@ -225,7 +223,6 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     } else {
       Ysigest <- sqrt(Ylambda)
     }
-
     if(is.na(Ytau.num)) {
       Ytau <- (max(Y)-min(Y))/(2*k*sqrt(ntree))
     } else {
@@ -233,13 +230,11 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     }
   } else {
     uY <- double(J); uY[1] <- NaN
-
     Ylambda <- 1
     Ysigest <- 1
     if(length(B_uY)==0) {
       B_uY <- sd(Y)
     }
-
     Ytau.num <- 3
     Ytau <- Ytau.num/(k*sqrt(ntree))
   }
