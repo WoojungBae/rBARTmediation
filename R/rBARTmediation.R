@@ -142,7 +142,11 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           if (length(removeM)>0){
             dataM <- dataM[,-removeM]
           }
-          namesM <- names(dataM)[1:(ncol(dataM)-1)]
+          # namesM <- names(dataM)[(ncol(dataM)-2)]
+          # namesM <- names(dataM)[1:(ncol(dataM)-1)]
+          namesM <- names(dataM)[1:(ncol(dataM)-2)]
+          # namesM <- names(dataM)[((ncol(dataM)-3):(ncol(dataM)-2))]
+          # namesM <- names(dataM)[c(1:pc,(ncol(dataM)-3):(ncol(dataM)-2))]
           formulM <- stats::as.formula(paste0("M~0+",paste(namesM, collapse="+")))
           lmeMtemp <- lme(formulM,random=list(~1|factor(u0.index)),dataM)
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
@@ -196,7 +200,11 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           if (length(removeY)>0){
             dataY <- dataY[,-removeY]
           }
-          namesY <- names(dataY)[1:(ncol(dataY)-1)]
+          # namesY <- names(dataY)[(ncol(dataY)-2)]
+          # namesY <- names(dataY)[1:(ncol(dataY)-1)]
+          namesY <- names(dataY)[1:(ncol(dataY)-2)]
+          # namesY <- names(dataY)[(ncol(dataY)-3):(ncol(dataY)-2)]
+          # namesY <- names(dataY)[c(1:pc,(ncol(dataY)-3):(ncol(dataY)-2))]
           formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
           lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
