@@ -43,7 +43,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   if(is.na(ntypeY) || is.na(ntypeM)){
     stop("type argument must be set to either 'continuous', 'binary' or 'multinomial'")
   }
-
+  
   if(is.null(Yoffset)){
     if(ntypeY == 1){
       Yoffset <- mean(Y)
@@ -74,7 +74,6 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   if(length(Uindex)==0){
     stop("the random effects indices must be provided")
   }
-  
   # --------------------------------------------------
   tmp.order <- order(Uindex)
   matX <- matX[tmp.order,]
@@ -82,16 +81,14 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   M <- M[tmp.order]
   Y <- Y[tmp.order]
   Uindex <- Uindex[tmp.order]
-  
-  u.index <- unique(Uindex)
+  unique_u.index <- unique(Uindex)
   u0.index <- integer(n) ## changing from R/arbitrary indexing to C/0
   for(i in 1:n) {
-    u0.index[i] <- which(Uindex[i]==u.index)-1
+    u0.index[i] <- which(Uindex[i]==unique_u.index)-1
   }
-  u.index <- unique(u0.index)
-  J <- length(u.index)
+  unique_u.index <- unique(u0.index)
+  J <- length(unique_u.index)
   n.j.vec <- as.numeric(table(u0.index))
-  
   # --------------------------------------------------
   if(!transposed) {
     matXtemp <- bartModelMatrix(matX, matXnumcut, usequants=usequants,
@@ -101,7 +98,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     matXnumcut <- matXtemp$numcut
     matXrm.const <- matXtemp$rm.const
     rm(matXtemp)
-
+    
     matMtemp <- bartModelMatrix(matM, matMnumcut, usequants=usequants,
                                 xinfo=xinfo, rm.const=matMrm.const)
     matM <- t(matMtemp$X)
@@ -123,25 +120,25 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   pm <- nrow(matX)
   if(length(matXrho)==0) matXrho=pm
   if(length(matXrm.const)==0) matXrm.const <- 1:pm
-
+  
   py <- nrow(matM)
   if(length(matMrho)==0) matMrho=py
   if(length(matMrm.const)==0) matMrm.const <- 1:py
-
+  
   # --------------------------------------------------
   #prior
   nu <- sigdf
-
+  
   if(ntypeM == 1) {
     if(is.na(Mlambda)) {
       if(is.na(Msigest)) {
         if(pm < n) {
-          matXtemp <- cbind(t(matX),1,u0.index)
-          dataM <- data.frame(matXtemp,M)
-          removeM <- caret::findLinearCombos(dataM)$remove
+          matXtemp <- cbind(t(matX),1)
+          removeM <- caret::findLinearCombos(matXtemp)$remove
           if (length(removeM)>0){
-            dataM <- dataM[,-removeM]
+            matXtemp <- matXtemp[,-removeM]
           }
+          dataM <- data.frame(matXtemp,u0.index,M)
           # namesM <- names(dataM)[(ncol(dataM)-2)]
           # namesM <- names(dataM)[1:(ncol(dataM)-1)]
           namesM <- names(dataM)[1:(ncol(dataM)-2)]
@@ -173,7 +170,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     } else {
       Msigest <- sqrt(Mlambda)
     }
-
+    
     if(is.na(Mtau.num)) {
       Mtau <- (max(M)-min(M))/(2*k*sqrt(ntree))
     } else {
@@ -189,17 +186,17 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     Mtau.num <- 3
     Mtau <- Mtau.num/(k*sqrt(ntree))
   }
-
+  
   if(ntypeY == 1) {
     if(is.na(Ylambda)) {
       if(is.na(Ysigest)) {
         if(py < n) {
-          matMtemp <- cbind(t(matM),1,u0.index)
-          dataY <- data.frame(matMtemp,Y)
-          removeY <- caret::findLinearCombos(dataY)$remove
+          matMtemp <- cbind(t(matM),1)
+          removeY <- caret::findLinearCombos(matMtemp)$remove
           if (length(removeY)>0){
-            dataY <- dataY[,-removeY]
+            matMtemp <- matMtemp[,-removeY]
           }
+          dataY <- data.frame(matMtemp,u0.index,Y)
           # namesY <- names(dataY)[(ncol(dataY)-2)]
           # namesY <- names(dataY)[1:(ncol(dataY)-1)]
           namesY <- names(dataY)[1:(ncol(dataY)-2)]
@@ -246,7 +243,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     Ytau.num <- 3
     Ytau <- Ytau.num/(k*sqrt(ntree))
   }
-
+  
   # --------------------------------------------------
   ptm <- proc.time()
   res <- .Call("crBARTmediation",
@@ -298,22 +295,22 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   # --------------------------------------------------
   res$Mdraw.mean <- apply(res$Mdraw, 2, mean)
   res$Ydraw.mean <- apply(res$Ydraw, 2, mean)
-
+  
   names(res$matXtreedraws$cutpoints) <- dimnames(matX)[[1]]
   dimnames(res$matXvarcount)[[2]] <- as.list(dimnames(matX)[[1]])
   dimnames(res$matXvarprob)[[2]] <- as.list(dimnames(matX)[[1]])
   res$matXvarcount.mean <- apply(res$matXvarcount, 2, mean)
   res$matXvarprob.mean <- apply(res$matXvarprob, 2, mean)
-
+  
   names(res$matMtreedraws$cutpoints) <- dimnames(matM)[[1]]
   dimnames(res$matMvarcount)[[2]] <- as.list(dimnames(matM)[[1]])
   dimnames(res$matMvarprob)[[2]] <- as.list(dimnames(matM)[[1]])
   res$matMvarcount.mean <- apply(res$matMvarcount, 2, mean)
   res$matMvarprob.mean <- apply(res$matMvarprob, 2, mean)
-
+  
   res$typeM <- typeM
   res$typeY <- typeY
-
+  
   res$Moffset <- Moffset
   res$Yoffset <- Yoffset
   res$matXrm.const <- matXrm.const
@@ -322,19 +319,19 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
   res$Ysigest <- Ysigest
   res$B_uM <- B_uM
   res$B_uY <- B_uY
-
+  
   res$uM <- uM
   res$uY <- uY
-
+  
   if(.Platform$OS.type!='unix') {
     hostname <- FALSE
   } else if(hostname) {
     hostname <- system('hostname', intern=TRUE)
   }
   res$hostname <- hostname
-
+  
   attr(res, 'class') <- "rBARTmediation"
-
+  
   return(res)
 }
 
@@ -423,13 +420,13 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
 #   Y <- Y[tmp.order]
 #   Uindex <- Uindex[tmp.order]
 #   
-#   u.index <- unique(Uindex)
+#   unique_u.index <- unique(Uindex)
 #   u0.index <- integer(n) ## changing from R/arbitrary indexing to C/0
 #   for(i in 1:n) {
-#     u0.index[i] <- which(Uindex[i]==u.index)-1
+#     u0.index[i] <- which(Uindex[i]==unique_u.index)-1
 #   }
-#   u.index <- unique(u0.index)
-#   J <- length(u.index)
+#   unique_u.index <- unique(u0.index)
+#   J <- length(unique_u.index)
 #   n.j.vec <- as.numeric(table(u0.index))
 #   
 #   # --------------------------------------------------
