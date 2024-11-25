@@ -139,11 +139,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
             matXtemp <- matXtemp[,-removeM]
           }
           dataM <- data.frame(matXtemp,u0.index,M)
-          # namesM <- names(dataM)[(ncol(dataM)-2)]
-          # namesM <- names(dataM)[1:(ncol(dataM)-1)]
           namesM <- names(dataM)[1:(ncol(dataM)-2)]
-          # namesM <- names(dataM)[((ncol(dataM)-3):(ncol(dataM)-2))]
-          # namesM <- names(dataM)[c(1:pc,(ncol(dataM)-3):(ncol(dataM)-2))]
           formulM <- stats::as.formula(paste0("M~0+",paste(namesM, collapse="+")))
           lmeMtemp <- lme(formulM,random=list(~1|factor(u0.index)),dataM)
           Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
@@ -151,16 +147,12 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           if(length(B_uM)==0) {
             B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
           }
-          # namesM <- names(dataM)[1:pm]
-          # formulM <- stats::as.formula(paste0("M~",paste(namesM, collapse="+"),"+(1 | u0.index)"))
-          # lmeMtemp <- summary(lmer(formulM,data=dataM,na.action = na.exclude))
-          # Msigest <- lmeMtemp$sigma
-          # uM <- double(J)
-          # if(length(B_uM)==0) {
-          #   B_uM <- as.numeric(lmeMtemp$varcor)
-          # }
-          # 
           # lmeMtemp <- lme(M~.,random=~1|factor(u0.index),data.frame(t(matX),u0.index,M))
+          # Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
+          # uM <- c(lmeMtemp$coefficients$random[[1]])
+          # if(length(B_uM)==0) {
+          #   B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
+          # }
         } else {
           Msigest <- 1 * sd(M)
         }
@@ -197,11 +189,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
             matMtemp <- matMtemp[,-removeY]
           }
           dataY <- data.frame(matMtemp,u0.index,Y)
-          # namesY <- names(dataY)[(ncol(dataY)-2)]
-          # namesY <- names(dataY)[1:(ncol(dataY)-1)]
           namesY <- names(dataY)[1:(ncol(dataY)-2)]
-          # namesY <- names(dataY)[(ncol(dataY)-3):(ncol(dataY)-2)]
-          # namesY <- names(dataY)[c(1:pc,(ncol(dataY)-3):(ncol(dataY)-2))]
           formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
           lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
@@ -209,16 +197,12 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           if(length(B_uY)==0) {
             B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
           }
-          # namesY <- names(dataY)[1:py]
-          # formulY <- stats::as.formula(paste0("Y~",paste(namesY, collapse="+"),"+(1 | u0.index)"))
-          # lmeYtemp <- summary(lmer(formulY,data=dataY,na.action = na.exclude))
-          # Ysigest <- lmeYtemp$sigma
-          # uY <- double(J)
-          # if(length(B_uY)==0) {
-          #   B_uY <- as.numeric(lmeYtemp$varcor)
-          # }
-          # 
           # lmeYtemp <- lme(Y~.,random=~1|factor(u0.index),data=data.frame(t(matM),u0.index,Y))
+          # Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
+          # uY <- c(lmeYtemp$coefficients$random[[1]])
+          # if(length(B_uY)==0) {
+          #   B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
+          # }
         } else {
           Ysigest <- 1 * sd(Y)
         }
