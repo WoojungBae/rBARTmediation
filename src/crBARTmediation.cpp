@@ -456,16 +456,16 @@ RcppExport SEXP crBARTmediation(SEXP _typeM,   // 1:continuous, 2:binary, 3:mult
     // set up BART model
     // mBM.setprior(alpha,mybeta,Mtau);
     // mBM.setprior(alpha,mybeta*2,Mtau);
-    // mBM.setprior(1-(1-alpha)/2,mybeta,Mtau);
-    mBM.setprior(1-(1-alpha)/2,mybeta*2,Mtau);
+    mBM.setprior(1-(1-alpha)/2,mybeta,Mtau);
+    // mBM.setprior(1-(1-alpha)/2,mybeta*2,Mtau);
     // mBM.setprior(1-(1-alpha)/4,mybeta*4,Mtau);
     mBM.setdata(pm,n,imatX,Mz,matXnc);
     mBM.setdart(a,b,matXrho,aug,dart);
     
     // yBM.setprior(alpha,mybeta,Ytau);
     // yBM.setprior(alpha,mybeta*2,Ytau);
-    // yBM.setprior(1-(1-alpha)/2,mybeta,Ytau);
-    yBM.setprior(1-(1-alpha)/2,mybeta*2,Ytau);
+    yBM.setprior(1-(1-alpha)/2,mybeta,Ytau);
+    // yBM.setprior(1-(1-alpha)/2,mybeta*2,Ytau);
     // yBM.setprior(1-(1-alpha)/4,mybeta*4,Ytau);
     yBM.setdata(py,n,imatM,Yz,matMnc);
     yBM.setdart(a,b,matMrho,aug,dart);
