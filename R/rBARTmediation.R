@@ -133,26 +133,26 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     if(is.na(Mlambda)) {
       if(is.na(Msigest)) {
         if(pm < n) {
-          matXtemp <- cbind(t(matX),1)
-          removeM <- caret::findLinearCombos(matXtemp)$remove
-          if (length(removeM)>0){
-            matXtemp <- matXtemp[,-removeM]
-          }
-          dataM <- data.frame(matXtemp,u0.index,M)
-          namesM <- names(dataM)[1:(ncol(dataM)-2)]
-          formulM <- stats::as.formula(paste0("M~0+",paste(namesM, collapse="+")))
-          lmeMtemp <- lme(formulM,random=list(~1|factor(u0.index)),dataM)
-          Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
-          uM <- c(lmeMtemp$coefficients$random[[1]])
-          if(length(B_uM)==0) {
-            B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
-          }
-          # lmeMtemp <- lme(M~.,random=~1|factor(u0.index),data.frame(t(matX),u0.index,M))
+          # matXtemp <- cbind(t(matX),1)
+          # removeM <- caret::findLinearCombos(matXtemp)$remove
+          # if (length(removeM)>0){
+          #   matXtemp <- matXtemp[,-removeM]
+          # }
+          # dataM <- data.frame(matXtemp,u0.index,M)
+          # namesM <- names(dataM)[1:(ncol(dataM)-2)]
+          # formulM <- stats::as.formula(paste0("M~0+",paste(namesM, collapse="+")))
+          # lmeMtemp <- lme(formulM,random=list(~1|factor(u0.index)),dataM)
           # Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
           # uM <- c(lmeMtemp$coefficients$random[[1]])
           # if(length(B_uM)==0) {
           #   B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
           # }
+          lmeMtemp <- lme(M~.,random=~1|factor(u0.index),data.frame(t(matX),u0.index,M))
+          Msigest <- as.numeric(VarCorr(lmeMtemp)[2,2])
+          uM <- c(lmeMtemp$coefficients$random[[1]])
+          if(length(B_uM)==0) {
+            B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
+          }
         } else {
           Msigest <- 1 * sd(M)
         }
@@ -183,26 +183,26 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     if(is.na(Ylambda)) {
       if(is.na(Ysigest)) {
         if(py < n) {
-          matMtemp <- cbind(t(matM),1)
-          removeY <- caret::findLinearCombos(matMtemp)$remove
-          if (length(removeY)>0){
-            matMtemp <- matMtemp[,-removeY]
-          }
-          dataY <- data.frame(matMtemp,u0.index,Y)
-          namesY <- names(dataY)[1:(ncol(dataY)-2)]
-          formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
-          lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
-          Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
-          uY <- c(lmeYtemp$coefficients$random[[1]])
-          if(length(B_uY)==0) {
-            B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
-          }
-          # lmeYtemp <- lme(Y~.,random=~1|factor(u0.index),data=data.frame(t(matM),u0.index,Y))
+          # matMtemp <- cbind(t(matM),1)
+          # removeY <- caret::findLinearCombos(matMtemp)$remove
+          # if (length(removeY)>0){
+          #   matMtemp <- matMtemp[,-removeY]
+          # }
+          # dataY <- data.frame(matMtemp,u0.index,Y)
+          # namesY <- names(dataY)[1:(ncol(dataY)-2)]
+          # formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
+          # lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
           # Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           # uY <- c(lmeYtemp$coefficients$random[[1]])
           # if(length(B_uY)==0) {
           #   B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
           # }
+          lmeYtemp <- lme(Y~.,random=~1|factor(u0.index),data=data.frame(t(matM),u0.index,Y))
+          Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
+          uY <- c(lmeYtemp$coefficients$random[[1]])
+          if(length(B_uY)==0) {
+            B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
+          }
         } else {
           Ysigest <- 1 * sd(Y)
         }
