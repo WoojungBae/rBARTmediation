@@ -15,22 +15,21 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-rBART <- function(Y, matX, Uindex=NULL,
-                  typeY = "continuous", 
-                  B_u=NULL,
-                  sparse=FALSE, theta=0, omega=1,
-                  a=0.5, b=1, augment=FALSE, rho=NULL,
-                  xinfo=matrix(0,0,0), usequants=FALSE,
-                  rm.const=TRUE,
-                  sigest=NA, sigdf=3, sigquant=0.90,
-                  k=2, power=2, base=0.95,
-                  lambda=NA, tau.num=NA,
-                  offsetY = NULL,
-                  ntree=200L, numcut=100L,
-                  ndpost=1e3, nskip=1e4, keepevery=1e1,
-                  printevery = (ndpost*keepevery)/10,
-                  transposed=FALSE, hostname=FALSE,
-                  mc.cores = 1L, nice = 19L, seed = 99L){
+BART <- function(Y, matX, 
+                 typeY = "continuous", 
+                 sparse=FALSE, theta=0, omega=1,
+                 a=0.5, b=1, augment=FALSE, rho=NULL,
+                 xinfo=matrix(0,0,0), usequants=FALSE,
+                 rm.const=TRUE,
+                 sigest=NA, sigdf=3, sigquant=0.90,
+                 k=2, power=2, base=0.95,
+                 lambda=NA, tau.num=NA,
+                 offsetY = NULL,
+                 ntree=200L, numcut=100L,
+                 ndpost=1e3, nskip=1e4, keepevery=1e1,
+                 printevery = (ndpost*keepevery)/10,
+                 transposed=FALSE, hostname=FALSE,
+                 mc.cores = 1L, nice = 19L, seed = 99L){
   #--------------------------------------------------
   ntypeY <- as.integer(factor(typeY, levels = c("continuous", "binary", "multinomial")))
   
@@ -70,22 +69,6 @@ rBART <- function(Y, matX, Uindex=NULL,
   # data
   n <- length(Y)
   
-  if(length(Uindex)==0) {
-    stop("the random effects indices must be provided")
-  }
-  
-  c.index <- integer(n) ## changing from R/arbitrary indexing to C/0
-  u.index <- unique(Uindex)
-  for(i in 1:n) {
-    c.index[i] <- which(Uindex[i]==u.index)-1
-  }
-  u.index <- unique(c.index)
-  J <- length(u.index)
-  n.j.vec <- integer(J) ## n_j for each j
-  for(j in 1:J) {
-    n.j.vec[j] <- length(which(u.index[j]==c.index))
-  }
-  
   if(!transposed) {
     temp <- bartModelMatrix(matX, numcut, usequants=usequants,
                             xinfo=xinfo, rm.const=rm.const)
@@ -116,13 +99,8 @@ rBART <- function(Y, matX, Uindex=NULL,
     if(is.na(lambda)) {
       if(is.na(sigest)) {
         if(p < n) {
-          temp <- lme(Y~., random=~1|factor(Uindex),
-                      data.frame(t(matX),Uindex,Y))
+          temp <- lm(Y~., data.frame(t(matX),Y))
           sigest <- summary(temp)$sigma
-          u <- c(temp$coefficients$random[[1]])
-          if(length(B_u)==0) {
-            B_u <- 2*sd(u)
-          }
         } else {
           sigest <- sd(Y)
         }
@@ -145,10 +123,6 @@ rBART <- function(Y, matX, Uindex=NULL,
   }
   
   #--------------------------------------------------
-  if(length(B_u)==0) {
-    B_u <- sigest
-  }
-  
   if(.Platform$OS.type!='unix') {
     hostname <- FALSE
   } else if(hostname) {
@@ -158,17 +132,12 @@ rBART <- function(Y, matX, Uindex=NULL,
   ptm <- proc.time()
   if(typeY == "continuous"){
     #--------------------------------------------------
-    res <- .Call("crBART",
+    res <- .Call("cBART",
                  ntypeY,    # 1:"continuous"; 2:"binary"; 3:"multinomial"
                  n,         # number of observations in training data
                  p,         # dimension of x
                  matX,      # p x n training data matX
                  Y,         # 1 x n training data Y
-                 c.index,
-                 n.j.vec,
-                 u,         # random effects, if estimated
-                 J,
-                 B_u,
                  ntree,
                  numcut,
                  ndpost*keepevery,
@@ -200,17 +169,12 @@ rBART <- function(Y, matX, Uindex=NULL,
     
   } else if(typeY == "binary"){
     #--------------------------------------------------
-    res <- .Call("crBART",
+    res <- .Call("cBART",
                  ntypeY,    # 1:"continuous"; 2:"binary"; 3:"multinomial"
                  n,         # number of observations in training data
                  p,         # dimension of x
                  matX,      # p x n training data matX
                  Y,         # 1 x n training data Y
-                 c.index,
-                 n.j.vec,
-                 u,         # random effects, if estimated
-                 J,
-                 B_u,
                  ntree,
                  numcut,
                  ndpost*keepevery,
@@ -242,7 +206,6 @@ rBART <- function(Y, matX, Uindex=NULL,
     dimnames(res$varprob)[[2]] <- as.list(dimnames(matX)[[1]])
     res$varcount.mean <- apply(res$varcount, 2, mean)
     res$varprob.mean <- apply(res$varprob, 2, mean)
-    
   } else if(typeY == "multinomial"){
     #--------------------------------------------------
     res <- list()
@@ -250,7 +213,7 @@ rBART <- function(Y, matX, Uindex=NULL,
     res$catsY <- catsY
     nY <- length(Y)
     pY <- nrow(matX) ## transposed
-    
+
     lY <- kY - 1
     offsetY <- numeric(lY)
     res$varcount <- as.list(1:lY)
@@ -264,41 +227,23 @@ rBART <- function(Y, matX, Uindex=NULL,
     res$treedraws$trees <- as.list(1:lY)
     ##res$rm.const <- as.list(1:lY)
     res.list <- as.list(1:lY)
-    
+
     for(k in 1:kY) {
       condY <- which(Y>=catsY[k])
-      
+
       tmp.n = length(condY)
       tmp.Y = (Y[condY]==k)*1
       tmp.matX = matX[, condY]
-      
-      tmp.c <- integer(tmp.n) ## changing from R/arbitrary indexing to C/0
-      tmp.Uindex <- Uindex[condY]
-      tmp.u <- unique(tmp.Uindex)
-      for(i in 1:tmp.n) {
-        tmp.c[i] <- which(tmp.Uindex[i]==tmp.u)-1
-      }
-      tmp.u <- unique(tmp.c)
-      J <- length(tmp.u)
-      tmp.n.j.vec <- integer(J) ## n_j for each j
-      for(j in 1:J) {
-        tmp.n.j.vec[j] <- length(which(tmp.u[j]==tmp.c))
-      }
       tmp.offsetY = offsetY[k]
-      
+
       if(k<kY) {
         res.list[[k]] <-
-          .Call("crBART",
+          .Call("cBART",
                 ntypeY = ntypeY,      # 1:"continuous"; 2:"binary"; 3:"multinomial"
                 tmp.n,               # number of observations in training data
                 p,               # dimension of x
                 tmp.matX,         # p x n training data matX
                 tmp.Y,            # 1 x n training data Y
-                tmp.c,
-                n.j.vec,
-                u,               # random effects, if estimated
-                J,
-                B_u,
                 ntree,
                 numcut,
                 ndpost*keepevery,
@@ -320,17 +265,17 @@ rBART <- function(Y, matX, Uindex=NULL,
                 augment,
                 printevery,
                 xinfo)
-        
+
         res$varcount[[k]] <- res.list[[k]]$varcount
         res$varprob[[k]] <- res.list[[k]]$varprob
-        
+
         # for(q in 1:pY) {
         #   res$varcount[ , q, k] <- res.list[[k]]$varcount[ , q]
         #   res$varcount.mean[k, q] <- res.list[[k]]$varcount.mean[q]
         #   res$varprob[ , q, k] <- res.list[[k]]$varprob[ , q]
         #   res$varprob.mean[k, q] <- res.list[[k]]$varprob.mean[q]
         # }
-        
+
         # res$offsetY[k] <- res.list[[k]]$offsetY
         # res$rm.const[[k]] <- res.list[[k]]$rm.const
         res$treedraws$trees[[k]] <- res.list[[k]]$treedraws$trees
@@ -352,9 +297,9 @@ rBART <- function(Y, matX, Uindex=NULL,
   res$ndpost <- ndpost
   res$rm.const <- rm.const
   res$sigest <- sigest
-  res$B_u <- B_u
-  res$u <- u
-  attr(res, 'class') <- "rBART"
+  # res$B_u <- B_u
+  # res$u <- u
+  attr(res, 'class') <- "BART"
   
   return(res)
 }

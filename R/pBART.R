@@ -15,11 +15,27 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-prBART = function(object,  # object from rBARTmediation
-                  X.test,  # matrix X to predict at
-                  Uindex){
-  # object = BARTfitY
-  # X.test = matM
+## BART: Bayesian Additive Regression Trees
+## Copyright (C) 2017-2018 Robert McCulloch and Rodney Sparapani
+
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, a copy is available at
+## https://www.R-project.org/Licenses/GPL-2
+
+pBART = function(object,  # object from rBARTmediation
+                 X.test){
+  # object = BARTfitM
+  # X.test = matX
   # --------------------------------------------------
   mc.cores = 1
   
@@ -34,19 +50,9 @@ prBART = function(object,  # object from rBARTmediation
   }
   
   # --------------------------------------------------
-  reff = object$u.draw
-  
-  # --------------------------------------------------
   # object$matXtreedraws$trees = gsub(",", " ", object$treedraws$trees)
   Yres = .Call("cprBART", object$treedraws, X.test, mc.cores)$yhat.test + object$offset
   Ysigest = object$sigest
-  for (j in 1:J) {
-    whichUindex = which(Uindex==j)
-    if(length(whichUindex)>0){
-      reff_tmp = reff[,j]
-      Yres[,whichUindex] = Yres[,whichUindex] + reff_tmp
-    }
-  }
   if(object$type == "continuous"){
     Y.test = sapply(1:N, function(i) rnorm(n_MCMC, Yres[,i], Ysigest))
   } else if(object$type == "binary"){

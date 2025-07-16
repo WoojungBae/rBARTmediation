@@ -16,9 +16,9 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.rBART <- function(object, newdata, Uindex, ...) {
-  call <- prBART
-  return(call(object, newdata, Uindex, ...))
+predict.BART <- function(object, newdata, ...) {
+  call <- pBART
+  return(call(object, newdata, ...))
   # function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...) {
   # ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
   # 
@@ -39,19 +39,19 @@ predict.rBART <- function(object, newdata, Uindex, ...) {
   # }
   # 
   # if(.Platform$OS.type != "unix" || openmp || mc.cores==1) {
-  #   call <- prBART
+  #   call <- pBART
   # } else {
-  #   call <- prBART
+  #   call <- pBART
   # }
   # 
   # if(object$typeY == "continuous"){
   #   out <- list()
   #   out$pred = call(newdata, object$treedraws, mc.cores=mc.cores, 
-  #                   mu=object$offsetY, ...)
+  #                   mu=object$offset, ...)
   # } else if(object$typeY == "binary"){
   #   out <- list()
   #   out$pred = call(newdata, object$treedraws, mc.cores=mc.cores, 
-  #                   mu=object$offsetY, ...)
+  #                   mu=object$offset, ...)
   #   out$prob <- pnorm(out$pred)
   # } else if(object$typeY == "multinomial"){
   #   kY <- object$kY

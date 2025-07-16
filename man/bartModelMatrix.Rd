@@ -32,10 +32,6 @@ bartModelMatrix(X, numcut=0L, usequants=FALSE, type=7,
 
 }
 
-\seealso{
-   \code{\link{class.ind}}
- }
-
  \examples{
 
 set.seed(99)

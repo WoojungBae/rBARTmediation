@@ -153,6 +153,14 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # if(length(B_uM)==0) {
           #   B_uM <- as.numeric(VarCorr(lmeMtemp)[1,1]) # max(c(pm/J,as.numeric(VarCorr(lmeMtemp)[1,])))
           # }
+          if(any(is.na(uM))){
+            lmeMtemp <- lm(formulM,dataM)
+            Msigest <- lmeMtemp$sigma
+            uM <- double(J)
+            if(length(B_uM)==0) {
+              B_uM <- Msigest
+            }
+          }
         } else {
           Msigest <- 1 * sd(M)
         }
@@ -161,6 +169,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
       Mlambda <- (Msigest*Msigest*qchi)/nu # Mlambda parameter for sigma prior
     } else {
       Msigest <- sqrt(Mlambda)
+      B_uM <- Msigest
     }
     
     if(is.na(Mtau.num)) {
@@ -173,7 +182,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     Mlambda <- 1
     Msigest <- 1
     if(length(B_uM)==0) {
-      B_uM <- sd(M)
+      B_uM <- Msigest
     }
     Mtau.num <- 3
     Mtau <- Mtau.num/(k*sqrt(ntree))
@@ -191,7 +200,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           dataY <- data.frame(matMtemp,u0.index,Y)
           namesY <- names(dataY)[1:(ncol(dataY)-2)]
           formulY <- stats::as.formula(paste0("Y~0+",paste(namesY, collapse="+")))
-          lmeYtemp <- lme(formulY, random=list(~1|factor(u0.index)),dataY)
+          lmeYtemp <- lme(formulY,random=list(~1|factor(u0.index)),dataY)
           Ysigest <- as.numeric(VarCorr(lmeYtemp)[2,2])
           uY <- c(lmeYtemp$coefficients$random[[1]])
           if(length(B_uY)==0) {
@@ -203,8 +212,17 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
           # if(length(B_uY)==0) {
           #   B_uY <- as.numeric(VarCorr(lmeYtemp)[1,1]) # max(c(py/J,as.numeric(VarCorr(lmeYtemp)[1,])))
           # }
+          if(any(is.na(uY))){
+            lmeYtemp <- lm(formulY,dataY)
+            Ysigest <- lmeYtemp$sigma
+            uY <- double(J)
+            if(length(B_uY)==0) {
+              B_uY <- Ysigest
+            }
+          }
         } else {
           Ysigest <- 1 * sd(Y)
+          B_uY <- Ysigest
         }
       }
       qchi <- qchisq(1.0-sigquant,nu)
@@ -222,7 +240,7 @@ rBARTmediation = function(Y, M, C, V, Uindex=NULL,
     Ylambda <- 1
     Ysigest <- 1
     if(length(B_uY)==0) {
-      B_uY <- sd(Y)
+      B_uY <- Ysigest
     }
     Ytau.num <- 3
     Ytau <- Ytau.num/(k*sqrt(ntree))
