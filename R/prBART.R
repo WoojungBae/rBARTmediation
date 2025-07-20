@@ -19,7 +19,7 @@ prBART = function(object,  # object from rBARTmediation
                   X.test,  # matrix X to predict at
                   Uindex){
   # object = BARTfitY
-  # X.test = matM
+  # X.test = matMz0m0.test
   # --------------------------------------------------
   mc.cores = 1
   
@@ -37,9 +37,9 @@ prBART = function(object,  # object from rBARTmediation
   reff = object$u.draw
   
   # --------------------------------------------------
-  # object$matXtreedraws$trees = gsub(",", " ", object$treedraws$trees)
+  object$treedraws$trees = gsub(",", " ", object$treedraws$trees)
   Yres = .Call("cprBART", object$treedraws, X.test, mc.cores)$yhat.test + object$offset
-  Ysigest = object$sigest
+  Ysigest = object$sigma
   for (j in 1:J) {
     whichUindex = which(Uindex==j)
     if(length(whichUindex)>0){
@@ -56,6 +56,6 @@ prBART = function(object,  # object from rBARTmediation
     #
   }
   
-  # return(Y.test)
-  return(Yres)
+  return(Y.test)
+  # return(Yres)
 }

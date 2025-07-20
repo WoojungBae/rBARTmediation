@@ -170,10 +170,10 @@ RcppExport SEXP cBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
 #endif
     
     std::stringstream treess;  //string stream to write trees to
-    treess.precision(10);
-    treess << nkeeptreedraws << " " << numtree << " " << p << endl;
+    treess.precision(15);
+    treess << nkeeptreedraws << "," << numtree << "," << p << "," << endl;
     
-    printf("*****Calling rBART: typeY=%d\n", typeY);
+    printf("*****Calling BART: typeY=%d\n", typeY);
     
     size_t skiptr=thin, skiptreedraws=thin;
     
@@ -290,16 +290,18 @@ RcppExport SEXP cBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
         }
         keeptreedraw = nkeeptreedraws && (((postrep-burn+1) % skiptreedraws) ==0);
         if(keeptreedraw) {
-          for(size_t j=0;j<numtree;j++) {
-            treess << bm.gettree(j);
+          treess << ",";
+          for(size_t num=0;num<numtree;num++) {
+            treess << bm.gettree(num);
             
 #ifndef NoRcpp
+            size_t it=(postrep-burn)/skiptreedraws;
+            
             ivarcnt=bm.getnv();
             ivarprb=bm.getpv();
-            size_t q=(postrep-burn)/skiptreedraws;
-            for(size_t j=0;j<p;j++){
-              varcnt(q,j)=ivarcnt[j];
-              varprb(q,j)=ivarprb[j];
+            for(size_t q=0;q<p;q++){
+              varcnt(it,q)=ivarcnt[q];
+              varprb(it,q)=ivarprb[q];
             }
 #else
             varcnt.push_back(bm.getnv());
@@ -337,7 +339,7 @@ RcppExport SEXP cBART(SEXP _typeY,   // 1:continuous, 2:binary, 3:multinomial
     
     Rcpp::List treesL;
     treesL["cutpoints"] = xiret;
-    treesL["trees"]=Rcpp::CharacterVector(treess.str());
+    treesL["trees"] = Rcpp::CharacterVector(treess.str());
     ret["treedraws"] = treesL;
     
     return ret;

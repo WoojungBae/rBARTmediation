@@ -52,7 +52,7 @@ pBART = function(object,  # object from rBARTmediation
   # --------------------------------------------------
   # object$matXtreedraws$trees = gsub(",", " ", object$treedraws$trees)
   Yres = .Call("cprBART", object$treedraws, X.test, mc.cores)$yhat.test + object$offset
-  Ysigest = object$sigest
+  Ysigest = object$sigma
   if(object$type == "continuous"){
     Y.test = sapply(1:N, function(i) rnorm(n_MCMC, Yres[,i], Ysigest))
   } else if(object$type == "binary"){
@@ -62,6 +62,6 @@ pBART = function(object,  # object from rBARTmediation
     #
   }
   
-  # return(Y.test)
-  return(Yres)
+  return(Y.test)
+  # return(Yres)
 }
