@@ -87,19 +87,18 @@ BART <- function(Y, matX,
   }
   
   p <- nrow(matX)
+  r <- qr(matX)$rank
   if(length(rho)==0) rho <- p
   if(length(rm.const)==0) rm.const <- 1:p
   
-  u <- double(J)
-  u[1] <- NaN
   #--------------------------------------------------
   # prior
   nu <- sigdf
   if(typeY == "continuous"){
     if(is.na(lambda)) {
       if(is.na(sigest)) {
-        if(p < n) {
-          temp <- lm(Y~., data.frame(t(matX),Y))
+        if(n<(r-2)){
+          temp <- lm(Y~., data.frame(t(matX[1:(r-2),]),Y))
           sigest <- summary(temp)$sigma
         } else {
           sigest <- sd(Y)

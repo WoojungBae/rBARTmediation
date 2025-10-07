@@ -15,7 +15,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-pBARTmediation = function(object0,  # object from rBARTmediation
+prBARTmediation = function(object0,  # object from rBARTmediation
                            object1,  # object from rBARTmediation
                            X.test,  # matrix X to predict at
                            Uindex){

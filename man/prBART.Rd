@@ -17,42 +17,21 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-prBART( x.test, treedraws, mu=0, mc.cores=1L, transposed=FALSE,
-        dodraws=TRUE,
-        nice=19L ## mc.prBART only
+prBART(object,
+       X.test,
+       Uindex
       )
 }
 \arguments{
-   \item{x.test}{
-   Matrix of covariates to predict \eqn{y} for.
-   }
+  \item{object}{
+    \code{object} returned from previous BART fit.
+  }
 
-   \item{treedraws}{
-     \code{$treedraws} returned from \code{rBART} or \code{pbart}.
-   }
-
-   \item{mu}{
-   Mean to add on to \eqn{y} prediction.
-   }
-
-   \item{mc.cores}{
-   Number of threads to utilize.
-   }
-
-   \item{transposed}{
-   When running \code{prBART} or \code{mc.prBART} in parallel, it is more memory-efficient
-   to transpose \code{x.test} prior to calling the internal versions of these functions.
-   }
-
-   \item{dodraws}{
-     Whether to return the draws themselves (the default), or whether to
-     return the mean of the draws as specified by \code{dodraws=FALSE}.
-   }
-   
-   \item{nice}{
-     Set the job niceness.  The default
-     niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
-   }
+  \item{X.test}{
+    Matrix of covariates to predict \eqn{y} for.
+  }
+  
+  \item{Uindex}{Integer indices specifying the random effects.}
 }
 \details{
    BART is an Bayesian MCMC method.
@@ -63,10 +42,10 @@ prBART( x.test, treedraws, mu=0, mc.cores=1L, transposed=FALSE,
    Thus, unlike a lot of other modelling methods in R, we do not produce a single model object
    from which fits and summaries may be extracted.  The output consists of values
    \eqn{f^*(x)}{f*(x)} (and \eqn{\sigma^*}{sigma*} in the numeric case) where * denotes a particular draw.
-   The \eqn{x} is either a row from the training data (x.train) or the test data (x.test).
+   The \eqn{x} is either a row from the training data (x.train) or the test data (X.test).
 }
 \value{
-  Returns a matrix of predictions corresponding to \code{x.test}.
+  Returns a matrix of predictions corresponding to \code{X.test}.
 }
 %% \references{
 %% Chipman, H., George, E., and McCulloch R. (2010)

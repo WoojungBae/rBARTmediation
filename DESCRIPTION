@@ -2,17 +2,21 @@ Package: rBARTmediation
 Type: Package
 Title: Mediation analysis using correlated BART models with random effects
 Version: 4.5.1
-Date: 2025-07-16
+Date: 2025-10-07
 Authors@R: c(
   person('Woojung', 'Bae', role=c('aut', 'cre'), email='matt.woojung@gmail.com'),
   person('Michael', 'Daniels', role='aut')
   )
 Author: Woojung Bae [aut, cre], Michael Daniels [aut]
 Maintainer: Woojung Bae <matt.woojung@gmail.com>
-Description: Mediation analysis using correlated BART models with random effects.
+Description: Implements Bayesian mediation analysis for multilevel or clustered
+    data using a correlated, semiparametric Bayesian Additive Regression Trees (BART)
+    approach. The package allows for the inclusion of random intercepts to account for
+    cluster-specific effects and can handle both continuous and binary outcomes or mediators.
 License: GPL (>= 2)
 Depends: R (>= 2.10), nnet, caret, nlme
 Imports: Rcpp (>= 0.12.3), parallel, tools
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: MASS
 NeedsCompilation: yes
+RoxygenNote: 7.3.2

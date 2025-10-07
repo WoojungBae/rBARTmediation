@@ -24,6 +24,7 @@ prBART = function(object,  # object from rBARTmediation
   mc.cores = 1
   
   N = nrow(X.test)
+  J = ncol(object$uYdraw)
   n_MCMC = nrow(object$y.draw)
   
   X.test <- t(bartModelMatrix(X.test))

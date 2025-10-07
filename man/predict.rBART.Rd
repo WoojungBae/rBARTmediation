@@ -20,7 +20,7 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{rBART}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
+\method{predict}{rBART}(object, newdata, Uindex, ...)
 %\method{predict}{pbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
 %\method{predict}{lbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
 %\method{predict}{mbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
@@ -33,16 +33,8 @@ small amount to the overall fit.
    \item{newdata}{
    Matrix of covariates to predict \eqn{y} for.
    }
-
-   \item{mc.cores}{
-   Number of threads to utilize.
-   }
-
-   \item{openmp}{
-     Logical value dictating whether OpenMP is utilized for parallel
-     processing.  Of course, this depends on whether OpenMP is available
-     on your system which, by default, is verified with \code{mc.cores.openmp}.
-   }
+  
+   \item{Uindex}{Integer indices specifying the random effects.}
 
    \item{...}{
      Other arguments which will be passed on to \code{prBART}.

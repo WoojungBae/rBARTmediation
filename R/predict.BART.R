@@ -105,6 +105,6 @@ predict.BART <- function(object, newdata, ...) {
   #   res$offset <- object$offset
   #   attr(res, 'class') <- 'rBART'
   # }
-  
-  return(out)
+  # 
+  # return(out)
 }

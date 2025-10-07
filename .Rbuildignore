@@ -36,3 +36,4 @@ sourceBART
 SimulationStudy
 RealDataAnalysis
 src/crBARTmediation1.cpp
+R/rBARTmediationCLUSTER.r

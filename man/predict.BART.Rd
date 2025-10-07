@@ -106,7 +106,7 @@ small amount to the overall fit.
   
   \dontrun{
   ##run BART
-  bartFit = BART(y,matX,Uindex=u0)
+  bartFit = BART(y,matX)
   }
 }
 \keyword{nonparametric}

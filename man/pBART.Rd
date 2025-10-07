@@ -17,19 +17,15 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-  pBART(object, x.test)
+  pBART(object, X.test)
 }
 \arguments{
    \item{object}{
      \code{object} returned from previous BART fit.
    }
 
-   \item{newdata}{
+   \item{X.test}{
    Matrix of covariates to predict \eqn{y} for.
-   }
-
-   \item{...}{
-     Other arguments which will be passed on to \code{pBART}.
    }
 }
 \details{
@@ -41,10 +37,10 @@ small amount to the overall fit.
    Thus, unlike a lot of other modelling methods in R, we do not produce a single model object
    from which fits and summaries may be extracted.  The output consists of values
    \eqn{f^*(x)}{f*(x)} (and \eqn{\sigma^*}{sigma*} in the numeric case) where * denotes a particular draw.
-   The \eqn{x} is either a row from the training data (x.train) or the test data (x.test).
+   The \eqn{x} is either a row from the training data (x.train) or the test data (X.test).
 }
 \value{
-  Returns a matrix of predictions corresponding to \code{x.test}.
+  Returns a matrix of predictions corresponding to \code{X.test}.
 }
 %% \references{
 %% Chipman, H., George, E., and McCulloch R. (2010)
@@ -94,11 +90,11 @@ small amount to the overall fit.
   lmFit = lm(y~.,data.frame(y,matX)) 
   
   ##test BART with token run to ensure installation works
-  bartFit = BART(y,matX,Uindex=u0,nskip=5,ndpost=5)
+  bartFit = BART(y,matX,nskip=5,ndpost=5)
   
   \dontrun{
   ##run BART
-  bartFit = BART(y,matX,Uindex=u0)
+  bartFit = BART(y,matX)
   }
 }
 \keyword{nonparametric}
